@@ -1,0 +1,131 @@
+<USER_REQUEST>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX · Gravitational Wave Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #010308;
+    --deep: #030712;
+    --cosmos: #060e1f;
+    --nebula: #0a1628;
+    --plasma: #00d4ff;
+    --plasma-dim: rgba(0, 212, 255, 0.15);
+    --plasma-glow: rgba(0, 212, 255, 0.4);
+    --gold: #ffd166;
+    --gold-dim: rgba(255, 209, 102, 0.2);
+    --signal: #00ff9f;
+    --signal-dim: rgba(0, 255, 159, 0.1);
+    --merge: #ff6b6b;
+    --merge-dim: rgba(255, 107, 107, 0.2);
+    --stellar: #e8f4fd;
+    --dust: rgba(232, 244, 253, 0.5);
+    --muted: rgba(232, 244, 253, 0.25);
+    --faint: rgba(232, 244, 253, 0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--stellar);
+    font-family: 'Space Mono', monospace;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* ═══ STAR FIELD ═══ */
+  #starfield {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ═══ HEADER ═══ */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px;
+    background: linear-gradient(180deg, rgba(1,3,8,0.95) 0%, transparent 100%);
+    border-bottom: 1px solid rgba(0,212,255,0.08);
+  }
+
+  .logo-mark {
+    display: flex; align-items: center; gap: 14px;
+  }
+
+  .logo-emblem {
+    width: 36px; height: 36px;
+    position: relative;
+  }
+
+  .logo-text {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: 
+<truncated 45214 bytes>
+ bhRadius*0.3, cy - bhRadius*0.3, 0, cx, cy, bhRadius);
+    bhGrad.addColorStop(0, '#020510');
+    bhGrad.addColorStop(1, '#010308');
+    ctx.beginPath();
+    ctx.arc(cx, cy, bhRadius, 0, Math.PI * 2);
+    ctx.fillStyle = bhGrad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    
+    // Outgoing ripple rings
+    for (let i = 0; i < 5; i++) {
+      const phase = (t * 0.5 + i) % 5;
+      const r = bhRadius + phase * 60;
+      const alpha = 0.4 * (1 - phase/5);
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(0,212,255,${alpha})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+  
+  (function loop() {
+    requestAnimationFrame(loop);
+    t += 0.016;
+    drawSpacetimeCurvature();
+  })();
+})();
+
+// ═══════════════════════════════════════════════
+// GLOBE CANVAS
+// ═══════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('globeCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2;
+  const R = Math.min(W,H)/2 - 30;
+  
+  const detectors = [
+    { name:'H1', lat: 46.455, lon:-119.408, color:'#00ff9f', active:true },
+    { name:'L1', lat: 30.563, lon:-90.774,  color:'#00ff9f', active:true },
+    { name:'V1', lat: 43.631, lon: 10.504,  color:'#00ff9f', active:true },
+    { name:'K1', lat: 36.411, lon:137.306,  color:'#ffd166', active:false },
+    { name:'A1', lat: 19.096, lon: 77.033,  color:'#ff6b6b', active:false },
+  ];
+  
+  let t = 0;
+  let rotY = 0;
+  
+  function latLonTo3D(lat, lon, r, rotY) {
+    const phi = (90 - lat) * Math.PI / 180;
+    const theta = (
+<truncated 6636 bytes>
+
+NOTE: The output was truncated because it was too long. Use a more targeted query or a smaller range to get the information you need.

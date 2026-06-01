@@ -1,0 +1,193 @@
+{
+  "catalog_name": "GWTC-1",
+  "num_events": 11,
+  "events": {
+    "GW170823": {
+      "gps_time": 1187529256.5,
+      "mass1": 39.5,
+      "mass2": 29.0,
+      "chirp_mass": 29.2,
+      "network_snr": 11.5,
+      "luminosity_distance": 1940.0,
+      "final_mass": 65.4,
+      "chi_eff": 0.09,
+      "detectors": [
+        "H1",
+        "L1"
+      ],
+      "catalog": "GWTC-1",
+      "raw_key": "GW170823-v1",
+      "jsonurl": "https://gwosc.org/eventapi/json/GWTC-1-confident/GW170823/v1"
+    },
+    "GW170818": {
+      "gps_time": 1187058327.1,
+      "mass1": 35.4,
+      "mass2": 26.7,
+      "chirp_mass": 26.5,
+      "network_snr": 11.3,
+      "luminosity_distance": 1060.0,
+      "final_mass": 59.4,
+      "chi_eff": -0.09,
+      "detectors": [
+        "H1",
+        "L1"
+      ],
+      "catalog": "GWTC-1",
+      "raw_key": "GW170818-v1",
+      "jsonurl": "https://gwosc.org/eventapi/json/GWTC-1-confident/GW170818/v1"
+    },
+    "GW170817": {
+      "gps_time": 1187008882.4,
+      "mass1": 1.46,
+      "mass2": 1.27,
+      "chirp_mass": 1.186,
+      "network_snr": 33.0,
+      "luminosity_distance": 40.0,
+      "final_mass": 2.8,
+      "chi_eff": 0.0,
+      "detectors": [
+        "H1",
+        "L1"
+      ],
+      "catalog": "GWTC-1",
+      "raw_key": "GW170817-v3",
+      "jsonurl": "https://gwosc.org/eventapi/json/GWTC-1-confident/GW170817/v3"
+    },
+    "GW170814": {
+      "gps_time": 1186741861.5,
+      "mass1": 30.6,
+      "mass2": 25.2,
+      "chirp_mass": 24.1,
+      "network_snr": 17.2,
+      "luminosity_distance": 600.0,
+      "final_mass": 53.2,
+      "chi_eff": 0.07,
+      "detectors": [
+        "H1",
+        "L1"
+      ],
+      "catalog": "GWTC-1",
+      "raw_key": "GW170814-v3",
+      "jsonurl": "https://gwosc.org/eventapi/json/GWTC-1-confident/GW170814/v3"
+    },
+    "GW170809": {
+      "gps_time": 1186302519.8,
+      "mass1": 35.0,
+      "mass2": 23.8,
+      "chirp_mass": 24.9,
+      "network_snr": 12.4,
+      "luminosity_distance": 1030.0,
+      "final_mass": 56.3,
+      "chi_eff": 0.08,
+      "detectors": [
+        "H1",
+        "L1"
+      ],
+      "catalog": "GWTC-1",
+      "raw_key": "GW170809-v1",
+      "jsonurl": "https://gwosc.org/eventapi/json/GWTC-1-confident/GW170809/v1"
+    },
+    "GW170729": {
+      "gps_time": 1185389807.3,
+      "mass1": 50.2,
+      "mass2": 34.0,
+      "chirp_mass": 35.4,
+      "network_snr": 10.8,
+      "luminosity_distance": 2840.0,
+      "final_mass": 79.5,
+      "chi_eff": 0.37,
+      "detectors": [
+        "H1",
+        "L1"
+      ],
+      "catalog": "GWTC-1",
+      "raw_key": "GW170729-v1",
+      "jsonurl": "https://gwosc.org/eventapi/json/GWTC-1-confident/GW170729/v1"
+    },
+    "GW170608": {
+      "gps_time": 1180922494.5,
+      "mass1": 11.0,
+      "mass2": 7.6,
+      "chirp_mass": 7.9,
+      "network_snr": 15.4,
+      "luminosity_distance": 320.0,
+      "final_mass": 17.8,
+      "chi_eff": 0.03,
+      "detectors": [
+        "H1",
+        "L1"
+      ],
+      "catalog": "GWTC-1",
+      "raw_key": "GW170608-v3",
+      "jsonurl": "https://gwosc.org/eventapi/json/GWTC-1-confident/GW170608/v3"
+    },
+    "GW170104": {
+      "gps_time": 1167559936.6,
+      "mass1": 30.8,
+      "mass2": 20.0,
+      "chirp_mass": 21.4,
+      "network_snr": 13.0,
+      "luminosity_distance": 990.0,
+      "final_mass": 48.9,
+      "chi_eff": -0.04,
+      "detectors": [
+        "H1",
+        "L1"
+      ],
+      "catalog": "GWTC-1",
+      "raw_key": "GW170104-v2",
+      "jsonurl": "https://gwosc.org/eventapi/json/GWTC-1-confident/GW170104/v2"
+    },
+    "GW151226": {
+      "gps_time": 1135136350.6,
+      "mass1": 13.7,
+      "mass2": 7.7,
+      "chirp_mass": 8.9,
+      "network_snr": 13.1,
+      "luminosity_distance": 450.0,
+      "final_mass": 20.5,
+      "chi_eff": 0.18,
+      "detectors": [
+        "H1",
+        "L1"
+      ],
+      "catalog": "GWTC-1",
+      "raw_key": "GW151226-v2",
+      "jsonurl": "https://gwosc.org/eventapi/json/GWTC-1-confident/GW151226/v2"
+    },
+    "GW151012": {
+      "gps_time": 1128678900.4,
+      "mass1": 23.2,
+      "mass2": 13.6,
+      "chirp_mass": 15.2,
+      "network_snr": 10.0,
+      "luminosity_distance": 1080.0,
+      "final_mass": 35.6,
+      "chi_eff": 0.05,
+      "detectors": [
+        "H1",
+        "L1"
+      ],
+      "catalog": "GWTC-1",
+      "raw_key": "GW151012-v3",
+      "jsonurl": "https://gwosc.org/eventapi/json/GWTC-1-confident/GW151012/v3"
+    },
+    "GW150914": {
+      "gps_time": 1126259462.4,
+      "mass1": 35.6,
+      "mass2": 30.6,
+      "chirp_mass": 28.6,
+      "network_snr": 25.2,
+      "luminosity_distance": 440.0,
+      "final_mass": 63.1,
+      "chi_eff": -0.01,
+      "detectors": [
+        "H1",
+        "L1"
+      ],
+      "catalog": "GWTC-1",
+      "raw_key": "GW150914-v3",
+      "jsonurl": "https://gwosc.org/eventapi/json/GWTC-1-confident/GW150914/v3"
+    }
+  }
+}

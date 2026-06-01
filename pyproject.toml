@@ -1,0 +1,2 @@
+[tool.pyrefly]
+python_interpreter = "gw_env/Scripts/python.exe"
