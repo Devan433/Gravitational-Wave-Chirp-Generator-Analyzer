@@ -1,72 +1,61 @@
-# Gravitational Wave Chirp Generator & Analyzer 🌌
+# Gravitational Wave Chirp Generator & Analyzer
 
-![Python](https://img.shields.io/badge/python-3.11%2B-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688)
-![Status](https://img.shields.io/badge/status-active-success)
+A Python project for simulating and analyzing gravitational waves from binary black hole mergers. It generates inspiral–merger–ringdown waveforms, produces audible chirps and spectrograms, performs matched filtering, and models detector responses for LIGO, Virgo, and KAGRA.
 
-A comprehensive, pure-Python pipeline designed to simulate, analyze, and visualize gravitational waves from Binary Black Hole (BBH) mergers. Built with a robust CLI engine and a fully interactive FastAPI + React web dashboard. 
+The project includes both a command-line interface and a FastAPI + React web interface.
 
-The physics engine is validated against the **GW150914** publication values.
+## Features
+* Generate gravitational waveforms using the IMRPhenomD model
+* Create audible chirp (.wav) files from simulated strain data
+* Generate spectrograms and frequency evolution plots
+* Inject signals into detector noise and recover them using matched filtering
+* Estimate source parameters such as chirp mass, final mass, final spin, and radiated energy
+* Simulate responses from multiple detectors (LIGO Hanford, LIGO Livingston, Virgo, and KAGRA)
+* Explore parameter variations through a web dashboard built with FastAPI and React
+* Compare simulated GW150914 results with published values
 
-## ✨ Features
-
-- **Waveform Simulation**: Generates full Inspiral-Merger-Ringdown (IMR) waveforms using the `IMRPhenomD` model.
-- **Audio Generation**: Converts simulated strains into audible "chirp" `.wav` files.
-- **Time-Frequency Analysis**: Computes Q-transform spectrograms overlayed with theoretical frequency tracks.
-- **Matched Filtering Pipeline**: Injects signals into simulated detector noise and recovers them to compute optimal and recovered Signal-to-Noise Ratios (SNR).
-- **Physics Estimations**: Calculates key parameters including chirp mass, final state mass/spin, radiated energy, and ringdown Quasinormal Mode (QNM) frequencies.
-- **Multi-Detector Networks**: Simulates network responses across global detectors (LIGO Hanford/Livingston, Virgo, KAGRA) considering antenna patterns and time delays.
-- **Interactive Dashboard**: A FastAPI-powered backend serving a sleek React frontend to drive simulations and explore parameter spaces visually.
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Installation
-
-Clone the repository and install the dependencies:
-
 ```bash
 git clone https://github.com/Devan433/Gravitational-Wave-Chirp-Generator-Analyzer.git
 cd Gravitational-Wave-Chirp-Generator-Analyzer
 pip install -r requirements.txt
 ```
 
-### Running the Web Dashboard
-
-Start the FastAPI server:
-
+### Run the Web Interface
 ```bash
 uvicorn server:app --reload --port 8000
 ```
-Then navigate to `http://localhost:8000` in your browser.
+Open:
+http://localhost:8000
 
-### Command Line Interface
-
-You can run the full analysis pipeline directly from the terminal. 
-
+### Run from the Command Line
 ```bash
-# Run with GW150914 defaults
+# GW150914 parameters
 python main.py
 
-# Simulate a heavier binary system
+# Heavier binary
 python main.py --m1 50 --m2 30 --distance 800
 
-# Full specification with spins and sky location
+# Custom configuration
 python main.py --m1 36 --m2 29 --s1z 0.3 --s2z -0.1 --distance 410 \
                --ra 1.95 --dec -1.27 --snr 25
 ```
-Results, including the 7-panel dashboard plot and `.wav` audio chirp, are saved in the `output/` directory.
 
-## 📂 Project Structure
+Generated plots, spectrograms, and audio files are saved in the `output/` directory.
 
-- `main.py`: The core CLI orchestrator.
-- `server.py`: FastAPI application serving the REST API and static frontend.
-- `gravitational_wave_analyzer/`: The core physics engine.
-  - `physics/`: Waveform generation, parameter space exploration, ringdown physics.
-  - `signal_processing/`: Audio generation, spectrograms, parameter estimation, and matched filtering.
-  - `visualization/`: Dashboard plotting logic.
-- `frontend/`: The HTML/JS/CSS source for the interactive web UI.
-- `output/`: Generated outputs (audio, plots).
+## Project Structure
+```text
+main.py                  Command-line entry point
+server.py                FastAPI backend
+physics/                 Waveform and merger calculations
+signal_processing/       Filtering, spectrograms, audio generation
+visualization/           Plot generation
+frontend/                React frontend
+output/                  Generated results
+```
 
-## 🔬 Validation
+## Validation
 
-The underlying physics pipeline is continuously validated against the published results for GW150914 (Abbott et al., PRL 116, 061102). Running `main.py` with default parameters will print a verification table comparing generated values (chirp mass, final mass, energy radiated) against LIGO/Virgo's published constraints.
+Default parameters correspond approximately to the GW150914 binary black hole merger. Simulated quantities such as chirp mass, remnant mass, and radiated energy can be compared with values reported by the LIGO Scientific Collaboration and Virgo Collaboration publications.
