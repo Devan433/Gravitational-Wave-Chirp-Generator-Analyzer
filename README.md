@@ -1,6 +1,6 @@
 # Gravitational Wave Chirp Generator & Analyzer
 
-A Python project for simulating and analyzing gravitational waves from binary black hole mergers. It generates inspiral–merger–ringdown waveforms, produces audible chirps and spectrograms, performs matched filtering, and models detector responses for LIGO, Virgo, and KAGRA.
+A Python project for simulating and analyzing gravitational waves from binary black hole mergers. It generates inspiral–merger–ringdown waveforms, produces audible chirps and spectrograms, performs matched filtering, and models detector responses for [LIGO](https://www.ligo.caltech.edu/), [Virgo](https://www.virgo-gw.eu/), and [KAGRA](https://gwcenter.icrr.u-tokyo.ac.jp/en/).
 
 The project includes both a command-line interface and a FastAPI + React web interface.
 
@@ -10,9 +10,9 @@ The project includes both a command-line interface and a FastAPI + React web int
 * Generate spectrograms and frequency evolution plots
 * Inject signals into detector noise and recover them using matched filtering
 * Estimate source parameters such as chirp mass, final mass, final spin, and radiated energy
-* Simulate responses from multiple detectors (LIGO Hanford, LIGO Livingston, Virgo, and KAGRA)
+* Simulate responses from multiple detectors ([LIGO](https://www.ligo.caltech.edu/) Hanford, LIGO Livingston, [Virgo](https://www.virgo-gw.eu/), and [KAGRA](https://gwcenter.icrr.u-tokyo.ac.jp/en/))
 * Explore parameter variations through a web dashboard built with FastAPI and React
-* Compare simulated GW150914 results with published values
+* Compare simulated [GW150914](https://gwosc.org/events/GW150914/) results with published values
 
 ## Quick Start
 
@@ -58,4 +58,4 @@ output/                  Generated results
 
 ## Validation
 
-Default parameters correspond approximately to the GW150914 binary black hole merger. Simulated quantities such as chirp mass, remnant mass, and radiated energy can be compared with values reported by the LIGO Scientific Collaboration and Virgo Collaboration publications.
+Default parameters correspond approximately to the [GW150914](https://gwosc.org/events/GW150914/) binary black hole merger. Simulated quantities such as chirp mass, remnant mass, and radiated energy can be compared with values reported by the [LIGO Scientific Collaboration](https://www.ligo.org/) and [Virgo Collaboration](https://www.virgo-gw.eu/) publications.
