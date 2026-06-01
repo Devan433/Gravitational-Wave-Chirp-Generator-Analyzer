@@ -374,7 +374,7 @@ async function runAnalysis() {
     showError('analysis-await', 'Connection failed: ' + e.message);
   } finally {
     btn.classList.remove('loading');
-    btn.innerHTML = 'â–¶ Generate Waveform';
+    btn.innerHTML = 'Generate Waveform';
   }
 }
 
