@@ -1042,9 +1042,14 @@ function renderHeatmap(canvasId, data2D, xVals, yVals, colormap, opts = {}) {
   const cv = $(canvasId);
   if (!cv || !data2D || !data2D.length) return;
   const cx = cv.getContext('2d');
-  const W = cv.width = cv.parentElement.offsetWidth - 30;
+  const W = cv.parentElement.offsetWidth - 30;
   const H = parseInt(cv.getAttribute('height')) || 200;
-  cv.height = H;
+  const dpr = window.devicePixelRatio || 1;
+  cv.style.width = W + 'px';
+  cv.style.height = H + 'px';
+  cv.width = W * dpr;
+  cv.height = H * dpr;
+  cx.scale(dpr, dpr);
 
   cx.fillStyle = '#0c1120';
   cx.fillRect(0, 0, W, H);
@@ -1156,8 +1161,14 @@ function renderMassSpinDiagram(m1, m2, s1z, s2z) {
   const cv = $('c-massspin');
   if (!cv) return;
   const cx = cv.getContext('2d');
-  const W = cv.width = cv.parentElement.offsetWidth - 30;
-  const H = cv.height = 200;
+  const W = cv.parentElement.offsetWidth - 30;
+  const H = 200;
+  const dpr = window.devicePixelRatio || 1;
+  cv.style.width = W + 'px';
+  cv.style.height = H + 'px';
+  cv.width = W * dpr;
+  cv.height = H * dpr;
+  cx.scale(dpr, dpr);
 
   cx.fillStyle = '#0c1120';
   cx.fillRect(0, 0, W, H);
@@ -1236,8 +1247,14 @@ function renderChirpMassContours() {
   const cv = $('c-skyloc');
   if (!cv) return;
   const cx = cv.getContext('2d');
-  const W = cv.width = cv.parentElement.offsetWidth - 30;
-  const H = cv.height = 200;
+  const W = cv.parentElement.offsetWidth - 30;
+  const H = 200;
+  const dpr = window.devicePixelRatio || 1;
+  cv.style.width = W + 'px';
+  cv.style.height = H + 'px';
+  cv.width = W * dpr;
+  cv.height = H * dpr;
+  cx.scale(dpr, dpr);
 
   cx.fillStyle = '#0c1120';
   cx.fillRect(0, 0, W, H);
@@ -1324,12 +1341,12 @@ function toggleAudio() {
 function updateAudioUI() {
   const btn = $('btn-audio');
   const wv = $('wv-bars');
-  btn.textContent = S.playing ? 'â– ' : 'â–¶';
+  btn.textContent = S.playing ? 'Stop' : 'Play';
   btn.classList.toggle('playing', S.playing);
   wv.classList.toggle('paused', !S.playing);
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* ────────────────────────────────────────────────────────── 
    PRESET LOADER
    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
