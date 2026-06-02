@@ -51,9 +51,7 @@ from scipy.signal import butter, sosfiltfilt, iirnotch, welch
 from scipy.signal.windows import tukey
 
 
-# ============================================================================
 # Configuration
-# ============================================================================
 
 # GWOSC API base URL
 GWOSC_BASE_URL = "https://gwosc.org"
@@ -83,9 +81,7 @@ HTTP_TIMEOUT = 30
 LIGO_SAMPLE_RATE = 4096
 
 
-# ============================================================================
 # Optional dependency handling
-# ============================================================================
 
 def _import_requests():
     """Import requests library with helpful error message."""
@@ -118,9 +114,7 @@ def _import_tqdm():
         return None
 
 
-# ============================================================================
 # 1. Event Catalog Fetcher
-# ============================================================================
 
 def fetch_event_catalog(catalog="GWTC-3", cache_dir=DEFAULT_CACHE_DIR):
     """Fetch the gravitational wave event catalog from GWOSC.
@@ -312,9 +306,7 @@ def _safe_float(d, key, default=0.0):
         return default
 
 
-# ============================================================================
 # 2. Strain Data Downloader
-# ============================================================================
 
 def download_strain_data(event_name, detector="H1", sample_rate=4096,
                           duration=32, cache_dir=DEFAULT_CACHE_DIR):
@@ -386,7 +378,7 @@ def download_strain_data(event_name, detector="H1", sample_rate=4096,
     # --- Try NPZ cache first (fastest) ---
     if os.path.exists(cache_npz):
         print(f"  [GWOSC] Loading cached NPZ: {cache_npz}")
-        data = np.load(cache_npz, allow_pickle=True)
+        data = np.load(cache_npz, allow_pickle=False)
         return {
             "strain": data["strain"],
             "times": data["times"],
@@ -835,9 +827,7 @@ def _download_txt_fallback(event_name, detector, sample_rate, duration,
     )
 
 
-# ============================================================================
 # 3. Real PSD Estimator
-# ============================================================================
 
 def estimate_psd_from_data(strain, sample_rate, segment_duration=4.0,
                             method="welch"):
@@ -993,9 +983,7 @@ def _validate_psd(freqs, psd):
             )
 
 
-# ============================================================================
 # 4. Event Data Preprocessor
-# ============================================================================
 
 def preprocess_strain(strain, sample_rate, f_low=20.0, f_high=1800.0):
     """Preprocess raw detector strain for gravitational wave analysis.
@@ -1087,9 +1075,7 @@ def preprocess_strain(strain, sample_rate, f_low=20.0, f_high=1800.0):
     return strain
 
 
-# ============================================================================
 # 5. Event Segment Extractor
-# ============================================================================
 
 def extract_event_segment(strain, times, gps_event, window_before=2.0,
                            window_after=0.5):
@@ -1168,9 +1154,7 @@ def extract_event_segment(strain, times, gps_event, window_before=2.0,
     return segment_strain, segment_times, merger_index
 
 
-# ============================================================================
 # 6. Batch Event Downloader
-# ============================================================================
 
 def download_gwtc3_batch(events=None, detectors=None,
                           output_dir=DEFAULT_CACHE_DIR):
@@ -1302,9 +1286,7 @@ def download_gwtc3_batch(events=None, detectors=None,
     }
 
 
-# ============================================================================
 # 7. Validation Function
-# ============================================================================
 
 def validate_against_published(event_name, our_snr=None, our_chirp_mass=None,
                                 catalog="GWTC-3",
@@ -1455,9 +1437,7 @@ def validate_against_published(event_name, our_snr=None, our_chirp_mass=None,
     }
 
 
-# ============================================================================
 # __main__ — Download GW150914 and print summary
-# ============================================================================
 
 if __name__ == "__main__":
     print("\n" + "=" * 72)

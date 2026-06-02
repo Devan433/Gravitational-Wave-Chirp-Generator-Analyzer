@@ -242,9 +242,7 @@ def main():
     print(f"    inclination = {args.inclination:.2f} rad")
     print(f"    method = {args.method}")
 
-    # ===================================================================
     # Step 1: Generate full IMR waveform
-    # ===================================================================
     print("\n  [1/6] Generating waveform...", end=" ", flush=True)
     t0 = time.time()
 
@@ -269,9 +267,7 @@ def main():
     print(f"        Waveform length: {len(waveform['time'])} samples "
           f"({waveform['params'].get('duration_seconds', 0):.3f}s)")
 
-    # ===================================================================
     # Step 2: Generate audio chirp
-    # ===================================================================
     audio_result = None
     if not args.skip_audio:
         print("  [2/6] Generating audio chirp...", end=" ", flush=True)
@@ -288,9 +284,7 @@ def main():
     else:
         print("  [2/6] Audio generation skipped.")
 
-    # ===================================================================
     # Step 3: Q-transform spectrogram
-    # ===================================================================
     spectrogram_result = None
     freq_track = None
     if not args.skip_spectrogram:
@@ -323,9 +317,7 @@ def main():
     else:
         print("  [3/6] Spectrogram computation skipped.")
 
-    # ===================================================================
     # Step 4: Matched filtering
-    # ===================================================================
     detection_result = None
     if not args.skip_matched_filter:
         print("  [4/6] Running matched filter pipeline...", end=" ", flush=True)
@@ -350,9 +342,7 @@ def main():
     else:
         print("  [4/6] Matched filtering skipped.")
 
-    # ===================================================================
     # Step 5: Generate dashboard
-    # ===================================================================
     print("  [5/6] Creating dashboard...", end=" ", flush=True)
     t0 = time.time()
 
@@ -370,9 +360,7 @@ def main():
 
     print(f"done ({time.time() - t0:.2f}s)")
 
-    # ===================================================================
     # Step 6: Print results
-    # ===================================================================
     print("  [6/6] Computing results...")
 
     print_physics_summary(waveform['params'], detection_result, audio_result)

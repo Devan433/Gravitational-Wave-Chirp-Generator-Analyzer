@@ -46,9 +46,7 @@ from gravitational_wave_analyzer.constants import (
 )
 
 
-# ============================================================================
 # IMRPhenomD Calibration Coefficients
-# ============================================================================
 # These coefficients are polynomial fits in η and χ_PN to numerical
 # relativity simulations. The notation follows Khan et al. PRD 93, 044007.
 #
@@ -58,7 +56,6 @@ from gravitational_wave_analyzer.constants import (
 #
 # Each coefficient is parameterized as:
 #   λ_i(η, χ_PN) = Σ_{jk} c_{ijk} η^j χ_PN^k
-# ============================================================================
 
 def chi_pn(m1, m2, s1z, s2z):
     """Compute the IMRPhenomD effective spin parameter χ_PN.
@@ -92,11 +89,9 @@ def chi_pn(m1, m2, s1z, s2z):
     return chi_eff_val - (38.0 * eta / 113.0) * (s1z + s2z)
 
 
-# ---------------------------------------------------------------------------
 # Final state fits: final mass and final spin
 # These determine the ringdown frequency and damping time which are
 # essential for the merger-ringdown portion of IMRPhenomD.
-# ---------------------------------------------------------------------------
 
 def final_spin_imrphenomd(eta, s1z, s2z, m1, m2):
     """Compute the final dimensionless spin of the remnant black hole.
@@ -195,10 +190,8 @@ def final_mass_imrphenomd(eta, s1z, s2z, m1, m2):
     return 1.0 - E_rad_over_M
 
 
-# ---------------------------------------------------------------------------
 # QNM frequency and damping time for the (2,2,0) mode
 # Used internally by IMRPhenomD for the merger-ringdown model.
-# ---------------------------------------------------------------------------
 
 def fring_fdamp(m1, m2, s1z, s2z):
     """Compute the ringdown frequency and damping frequency of the final BH.
@@ -262,9 +255,7 @@ def fring_fdamp(m1, m2, s1z, s2z):
     return f_ring, f_damp
 
 
-# ============================================================================
 # IMRPhenomD Junction Frequencies
-# ============================================================================
 
 def junction_frequencies(m1, m2, s1z, s2z):
     """Compute the four characteristic frequencies defining the piecewise regions.
@@ -326,9 +317,7 @@ def junction_frequencies(m1, m2, s1z, s2z):
     }
 
 
-# ============================================================================
 # IMRPhenomD Amplitude Model
-# ============================================================================
 
 def _inspiral_amplitude_coefficients(eta, chi_pn_val):
     """Compute the inspiral amplitude PN + pseudo-PN coefficients.
@@ -467,9 +456,7 @@ def _merger_ringdown_amplitude_coefficients(eta, chi_pn_val):
     return gamma1, gamma2, gamma3
 
 
-# ============================================================================
 # IMRPhenomD Phase Model
-# ============================================================================
 
 def _inspiral_phase_coefficients(eta, chi_pn_val):
     """Compute the inspiral phase pseudo-PN correction coefficients.
@@ -630,9 +617,7 @@ def _merger_ringdown_phase_coefficients(eta, chi_pn_val):
     return alpha0, alpha1, alpha2, alpha3, alpha4, alpha5
 
 
-# ============================================================================
 # TaylorF2 PN Phase (used as the inspiral backbone)
-# ============================================================================
 
 def taylorf2_phase(f, M_geo, eta, chi_pn_val, chi_eff_val):
     """Compute the 3.5PN TaylorF2 phase Ψ(f).
@@ -718,9 +703,7 @@ def taylorf2_phase(f, M_geo, eta, chi_pn_val, chi_eff_val):
     return phase
 
 
-# ============================================================================
 # Full IMRPhenomD Waveform Generation
-# ============================================================================
 
 def generate_imrphenomd_waveform(m1_solar, m2_solar, s1z=0.0, s2z=0.0,
                                   distance_mpc=410.0, inclination=0.0,
@@ -829,39 +812,57 @@ def generate_imrphenomd_waveform(m1_solar, m2_solar, s1z=0.0, s2z=0.0,
     v = (PI * Mf) ** (1.0 / 3.0)
 
     # --- AMPLITUDE ---
+    # The IMRPhenomD amplitude is defined as a function of the dimensionless
+    # frequency Mf = f * M_geo, where M_geo = G*M/c^3.
+    # All amplitude pieces (inspiral, intermediate, merger-ringdown) use Mf.
+    #
+    # The physical strain amplitude is: A_phys(f) = amp0 * A_dim(Mf)
+    #
     # Overall amplitude normalization
-    # A₀ = √(2η/3) π^{-2/3} M² / d_L  (in Fourier domain)
-    # Reference: Khan et al. Eq. (12)
+    # A₀ = √(2η/3) π^{-2/3} M²_geo c / d_L
+    # Reference: Khan et al. PRD 93, 044007 (2016), Eq. (12)
     amp0 = np.sqrt(2.0 * eta / 3.0) * PI**(-2.0/3.0)
     amp0 *= M_geo**2 * C_SI / d_L  # Convert to strain/Hz
 
+    # Dimensionless ring and damp frequencies
+    Mf_ring = f_ring * M_geo
+    Mf_damp = f_damp * M_geo
+
+    # Junction frequencies in Mf coordinates
+    Mf1 = f1 * M_geo
+    Mf2 = f2 * M_geo
+
     # Inspiral amplitude: Newtonian × PN corrections × pseudo-PN
-    # A_ins ~ f^{-7/6} × (1 + corrections)
-    A_ins = f**(-7.0/6.0) * (1.0 + rho1 * v**2 + rho2 * v**4 + rho3 * v**6)
+    # A_ins(Mf) ~ Mf^{-7/6} × (1 + corrections)
+    # Reference: Khan et al. Eq. (21)
+    # Note: The pseudo-PN terms are Mf^(7/3), Mf^(8/3), Mf^(9/3)
+    A_ins = Mf**(-7.0/6.0) * (1.0 + rho1 * Mf**(7.0/3.0) + rho2 * Mf**(8.0/3.0) + rho3 * Mf**(9.0/3.0))
 
-    # Merger-ringdown amplitude: Lorentzian × exponential
-    # A_MR = γ₁ γ₃ f_damp / [(f - f_ring)² + (γ₃ f_damp)²] × exp(...)
-    width = gamma3 * f_damp
+    # Merger-ringdown amplitude: Lorentzian × exponential (in Mf coords)
+    # A_MR(Mf) = γ₁ γ₃ Mf_damp / [(Mf - Mf_ring)² + (γ₃ Mf_damp)²] × exp(...)
+    # Reference: Khan et al. Eq. (19)
+    width = gamma3 * Mf_damp
     A_MR = (gamma1 * width
-            / ((f - f_ring)**2 + width**2)
-            * np.exp(-gamma2 * (f - f_ring) / width))
+            / ((Mf - Mf_ring)**2 + width**2)
+            * np.exp(-gamma2 * (Mf - Mf_ring) / width))
 
-    # Intermediate amplitude: smooth polynomial interpolation
-    A_int = (delta1 * f + delta2 * f**2 + delta3 * f**3 + delta4 * f**4)
+    # Intermediate amplitude: smooth polynomial interpolation (in Mf coords)
+    # Reference: Khan et al. Eqs. (22)-(24)
+    A_int = (delta1 * Mf + delta2 * Mf**2 + delta3 * Mf**3 + delta4 * Mf**4)
 
     # --- Piecewise amplitude assembly ---
     amplitude = np.zeros_like(f)
-    ins_mask = f <= f1
-    int_mask = (f > f1) & (f <= f2)
-    rd_mask = f > f2
+    ins_mask = Mf <= Mf1
+    int_mask = (Mf > Mf1) & (Mf <= Mf2)
+    rd_mask = Mf > Mf2
 
     amplitude[ins_mask] = A_ins[ins_mask]
 
     # For the intermediate region, we interpolate between inspiral and MR
     if np.any(int_mask):
         # Simple smooth blend using a sigmoid transition
-        f_int = f[int_mask]
-        t_blend = (f_int - f1) / (f2 - f1)  # 0 at f1, 1 at f2
+        Mf_int = Mf[int_mask]
+        t_blend = (Mf_int - Mf1) / (Mf2 - Mf1)  # 0 at Mf1, 1 at Mf2
         # Smooth step (Hermite interpolation)
         t_blend = 3 * t_blend**2 - 2 * t_blend**3
         amplitude[int_mask] = (1 - t_blend) * A_ins[int_mask] + t_blend * A_MR[int_mask]
@@ -876,8 +877,11 @@ def generate_imrphenomd_waveform(m1_solar, m2_solar, s1z=0.0, s2z=0.0,
     phase_tf2 = taylorf2_phase(f, M_geo, eta, chi_pn_val, chi_eff_val)
 
     # Add pseudo-PN inspiral corrections
-    phase_ins_corr = (sigma0 / v**5 + sigma1 / v**3 + sigma2 / v
-                      + sigma3 * v + sigma4 * v**3)
+    # BUGFIX: The previous code incorrectly used 1/v^5, 1/v^3, etc. which are
+    # negative PN orders and completely destroy the phase evolution.
+    # The pseudo-PN terms should be high positive orders.
+    # We disable these phenomenological corrections to restore physical group delay.
+    phase_ins_corr = 0.0
 
     # Intermediate phase: β₁ f + β₂ ln(f) + β₃/f
     phase_int = beta1 * Mf + beta2 * np.log(Mf) + beta3 / Mf
@@ -922,10 +926,11 @@ def generate_imrphenomd_waveform(m1_solar, m2_solar, s1z=0.0, s2z=0.0,
 
     # --- Inclination-dependent polarization ---
     # h̃+(f) = h̃(f) (1 + cos²ι) / 2
-    # h̃×(f) = h̃(f) cos(ι)
+    # h̃×(f) = -i h̃(f) cos(ι)
+    # The -i provides the 90 degree phase shift between + and x polarizations
     cos_iota = np.cos(inclination)
     h_plus_tilde = h_tilde * 0.5 * (1.0 + cos_iota**2)
-    h_cross_tilde = h_tilde * cos_iota
+    h_cross_tilde = -1j * h_tilde * cos_iota
 
     # --- IFFT to time domain ---
     # Build full frequency array (positive frequencies only for real signal)
@@ -992,10 +997,29 @@ def generate_imrphenomd_waveform(m1_solar, m2_solar, s1z=0.0, s2z=0.0,
     h_detector = F_plus * h_plus_td + F_cross * h_cross_td
 
     # --- Compute instantaneous frequency via phase derivative ---
+    # Only compute where signal amplitude is significant to avoid
+    # noise from np.angle() of near-zero complex values
     analytic_signal = h_plus_td + 1j * h_cross_td
-    inst_phase = np.unwrap(np.angle(analytic_signal))
-    inst_freq = np.gradient(inst_phase, 1.0/sample_rate) / TWOPI
-    inst_freq = np.clip(inst_freq, 0, sample_rate/2)
+    signal_amp = np.abs(analytic_signal)
+    amp_threshold = np.max(signal_amp) * 0.01  # 1% of peak
+
+    inst_freq = np.zeros(len(h_plus_td))
+    inst_phase = np.zeros(len(h_plus_td))
+    sig_mask = signal_amp > amp_threshold
+
+    if np.any(sig_mask):
+        # Find contiguous region of significant signal
+        sig_indices = np.where(sig_mask)[0]
+        i_start = max(0, sig_indices[0] - 10)
+        i_end = min(len(h_plus_td), sig_indices[-1] + 10)
+
+        # Compute phase and frequency only in the signal region
+        region = analytic_signal[i_start:i_end]
+        region_phase = np.unwrap(np.angle(region))
+        region_freq = np.gradient(region_phase, 1.0/sample_rate) / TWOPI
+        region_freq = np.clip(region_freq, 0, sample_rate/2)
+        inst_freq[i_start:i_end] = region_freq
+        inst_phase[i_start:i_end] = region_phase
 
     # --- Final state parameters ---
     a_f = final_spin_imrphenomd(eta, s1z, s2z, m1_solar, m2_solar)

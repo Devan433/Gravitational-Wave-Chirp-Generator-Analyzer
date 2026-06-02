@@ -20,9 +20,7 @@ References
 
 import numpy as np
 
-# ---------------------------------------------------------------------------
 # Fundamental constants (CODATA 2018 via astropy)
-# ---------------------------------------------------------------------------
 try:
     from astropy import constants as ac
     from astropy import units as u
@@ -55,9 +53,7 @@ except ImportError:
     HBAR_SI = 1.054571817e-34  # J·s, CODATA 2018
 
 
-# ---------------------------------------------------------------------------
 # Derived constants used throughout the GW pipeline
-# ---------------------------------------------------------------------------
 
 # Gravitational radius of the Sun: R_g = G * M_sun / c^2
 # This is the fundamental length scale in GW physics.
@@ -85,9 +81,7 @@ PI_SQ = np.pi**2
 EULER_GAMMA = 0.5772156649015329  # Euler-Mascheroni constant
 
 
-# ---------------------------------------------------------------------------
 # LIGO detector parameters
-# ---------------------------------------------------------------------------
 
 # Standard LIGO sample rate: 4096 Hz
 # This is the native sample rate of h(t) strain data released by LIGO.
@@ -103,9 +97,7 @@ LIGO_F_LOWER = 20.0  # Hz
 AUDIO_SAMPLE_RATE = 44100  # Hz
 
 
-# ---------------------------------------------------------------------------
 # Utility conversion functions
-# ---------------------------------------------------------------------------
 
 def solar_masses_to_kg(m_solar):
     """Convert mass from solar masses to kilograms.

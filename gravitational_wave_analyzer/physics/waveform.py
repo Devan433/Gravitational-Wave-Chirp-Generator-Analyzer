@@ -53,9 +53,7 @@ from gravitational_wave_analyzer.constants import (
 )
 
 
-# ============================================================================
 # 3.5 Post-Newtonian Energy and Flux
-# ============================================================================
 
 def orbital_energy_3pn(v, eta):
     """Compute the orbital binding energy E(v) to 3PN order.
@@ -230,9 +228,7 @@ def dv_dt_3p5pn(v, eta):
     return -F / dEdv
 
 
-# ============================================================================
 # Spin Corrections to the Phase Evolution
-# ============================================================================
 
 def spin_phase_correction(v, eta, chi_eff, chi_s, chi_a, delta_m):
     """Compute spin corrections to the GW phasing.
@@ -288,9 +284,7 @@ def spin_phase_correction(v, eta, chi_eff, chi_s, chi_a, delta_m):
     return phase_corr
 
 
-# ============================================================================
 # Antenna Pattern Functions
-# ============================================================================
 
 def antenna_pattern(ra, dec, psi, detector='H1'):
     """Compute the antenna response functions F+ and Fx for a GW detector.
@@ -361,9 +355,7 @@ def antenna_pattern(ra, dec, psi, detector='H1'):
     return F_plus, F_cross
 
 
-# ============================================================================
 # Time-Domain Inspiral Waveform Generator (TaylorT4)
-# ============================================================================
 
 def generate_inspiral_waveform(m1_solar, m2_solar, s1z=0.0, s2z=0.0,
                                 distance_mpc=410.0, inclination=0.0,

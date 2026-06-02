@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GW Observatory — GW150914</title>
+<title>GW Observatory — Simulator</title>
 <meta name="description" content="Interactive gravitational wave observatory dashboard for binary black hole merger analysis using IMRPhenomD waveform models.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,19 +20,19 @@
 <!-- ── HEADER ── -->
 <header>
   <div class="hd-left">
-    <div class="live-dot"><i></i>ONLINE</div>
+    <div class="live-dot" id="live-dot"><i id="live-dot-icon"></i><span id="live-text">CHECKING</span></div>
     <div class="det-chips">
-      <div class="chip on">H1</div>
-      <div class="chip on">L1</div>
-      <div class="chip on">V1</div>
-      <div class="chip off">K1</div>
+      <div class="chip off" id="chip-H1">H1</div>
+      <div class="chip off" id="chip-L1">L1</div>
+      <div class="chip off" id="chip-V1">V1</div>
+      <div class="chip off" id="chip-K1">K1</div>
     </div>
-    <span class="ev-label">EVENT:</span>
-    <span class="ev-name">GW150914</span>
+    <span class="ev-label">MODE:</span>
+    <span class="ev-name">SIMULATION</span>
   </div>
   <div class="hd-center">
     <div class="hd-title">Gravitational Wave Observatory</div>
-    <div class="hd-sub">Binary Black Hole · IMRPhenomD · LIGO / Virgo</div>
+    <div class="hd-sub">Binary Black Hole · IMRPhenomD · Global Network</div>
   </div>
   <div class="hd-right">
     <div class="pipe-stat">PIPELINE: <b id="pipe-elapsed">—</b></div>
@@ -46,13 +46,12 @@
 <aside class="sidebar">
 
   <div class="sb-head">
-    <div class="sb-title">Binary Parameters</div>
-    <div class="sb-sub">Black Hole Binary Configuration</div>
+    <div class="sb-title">System Parameters</div>
+    <div class="sb-sub">Configure the binary source</div>
   </div>
 
-  <!-- ORBIT ANIMATION -->
   <div class="orbit-block">
-    <div class="block-label">Binary Orbit Preview</div>
+    <div class="block-label">Orbital Dynamics</div>
     <canvas id="orbit-canvas" width="240" height="148"></canvas>
     <div class="ratio-bar-wrap">
       <div class="ratio-labels">
@@ -60,7 +59,7 @@
         <span id="ratio-eta">η = 0.2471</span>
         <span id="ratio-m2">M₂ 29 M☉</span>
       </div>
-      <div class="ratio-track"><div class="ratio-fill" id="ratio-fill" style="width:55%"></div></div>
+      <div class="ratio-track"><div class="ratio-fill" id="ratio-fill" style="width: 55.3%"></div></div>
     </div>
   </div>
 
