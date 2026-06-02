@@ -1,6 +1,4 @@
-/* ═══════════════════════════════════════════════════════════
-   GRAVITATIONAL WAVE OBSERVATORY — Deep Space Design System
-   ═══════════════════════════════════════════════════════════ */
+
 
 :root {
   --void:        #04050a;
@@ -63,7 +61,6 @@ html, body {
   overflow: hidden;
 }
 
-/* ── DEEP SPACE BACKGROUND ── */
 #cosmos {
   position: fixed;
   inset: 0;
@@ -71,7 +68,6 @@ html, body {
   pointer-events: none;
 }
 
-/* ── BH ANIMATION CANVAS ── */
 #bh-ambient {
   position: fixed;
   top: 0; right: 0;
@@ -81,7 +77,6 @@ html, body {
   opacity: 0.18;
 }
 
-/* ── LAYOUT ── */
 .shell {
   position: relative;
   z-index: 1;
@@ -90,7 +85,6 @@ html, body {
   height: 100vh;
 }
 
-/* ── HEADER ── */
 header {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -165,14 +159,12 @@ header {
   color:var(--t2); letter-spacing:0.05em;
 }
 
-/* ── BODY LAYOUT ── */
 .body-grid {
   display: grid;
   grid-template-columns: 284px 1fr;
   overflow: hidden;
 }
 
-/* ── SIDEBAR ── */
 .sidebar {
   background: rgba(8,12,20,0.82);
   border-right: 1px solid var(--b1);
@@ -194,7 +186,6 @@ header {
   margin-top:2px;
 }
 
-/* ── ORBIT BLOCK ── */
 .orbit-block {
   padding: 14px 18px 12px;
   border-bottom: 1px solid var(--b0);
@@ -216,7 +207,6 @@ header {
 .ratio-track { height:2px; background:var(--b1); border-radius:1px; overflow:hidden; }
 .ratio-fill  { height:100%; background: linear-gradient(90deg, var(--acc) 0%, var(--mer) 100%); border-radius:1px; transition: width 0.3s; }
 
-/* ── SLIDERS ── */
 .ctrl-block {
   padding:14px 18px;
   border-bottom:1px solid var(--b0);
@@ -268,7 +258,6 @@ input[type=range]::-webkit-slider-thumb {
 }
 .preset-btn:hover { border-color:var(--b2); color:var(--t2); }
 
-/* ── AUDIO ── */
 .audio-block {
   padding:12px 18px; border-bottom:1px solid var(--b0);
 }
@@ -305,7 +294,6 @@ input[type=range]::-webkit-slider-thumb {
 .wv span:nth-child(7){height:3px;  animation-delay:0.38s;}
 @keyframes wvanim { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(0.25)} }
 
-/* ── PHYSICS GRID ── */
 .phys-block { padding:14px 18px; flex:1; }
 .sec-hd {
   font-family:var(--font-ui); font-size:8px; font-weight:600;
@@ -355,7 +343,6 @@ input[type=range]::-webkit-slider-thumb {
   text-align:center; line-height:1.5;
 }
 
-/* ── CONTENT ── */
 .content {
   display:flex; flex-direction:column;
   background: rgba(8, 12, 20, 0.4);
@@ -363,7 +350,6 @@ input[type=range]::-webkit-slider-thumb {
   overflow:hidden;
 }
 
-/* ── TABS ── */
 .tabs {
   display:flex; align-items:stretch;
   background:rgba(4,5,10,0.7);
@@ -385,11 +371,9 @@ input[type=range]::-webkit-slider-thumb {
 .tb:hover { color:var(--t2); }
 .tb.on { color:var(--acc); border-bottom-color:var(--acc); }
 
-/* ── TAB PANELS ── */
 .tp { display:none; padding:18px 22px; overflow-y:auto; flex:1; }
 .tp.on { display:block; }
 
-/* ── KEY METRICS ── */
 .kpi-row {
   display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:10px;
   margin-bottom:14px;
@@ -412,11 +396,9 @@ input[type=range]::-webkit-slider-thumb {
 .kpi-unit { font-size:9px; font-weight:400; color:var(--acc-dim); margin-left:2px; }
 .kpi-sub { font-family:var(--font-mono); font-size:7px; color:var(--t3); margin-top:2px; }
 
-/* ── CHART GRID ── */
 .cg2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 .cg1 { display:grid; grid-template-columns:1fr; gap:14px; margin-bottom:14px; }
 
-/* ── CHART PANEL ── */
 .cp {
   background:var(--panel); border:1px solid var(--b1);
   border-radius:var(--r3); overflow:hidden; transition:border-color 0.18s;
@@ -458,7 +440,6 @@ input[type=range]::-webkit-slider-thumb {
 canvas.gc { width:100%!important; display:block; }
 .cb { padding:10px 15px 14px; position:relative; }
 
-/* ── MODELS TAB ── */
 .model-sel {
   display:flex; align-items:center; gap:14px;
   padding:12px 16px; margin-bottom:14px;
@@ -506,7 +487,6 @@ canvas.gc { width:100%!important; display:block; }
 .param-tbl tr:last-child td { border-bottom:none; }
 .param-tbl tr:hover td { background:var(--raised); }
 
-/* ── DETECTOR CARDS ── */
 .det-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; }
 .det-card {
   padding:13px; background:var(--raised);
@@ -528,7 +508,6 @@ canvas.gc { width:100%!important; display:block; }
 .det-off .det-snr { color:var(--t4); }
 .det-snrl { font-size:7px; font-weight:400; color:var(--t3); display:block; text-align:right; letter-spacing:0.08em; margin-top:1px; }
 
-/* ── CONTROL INPUTS ── */
 .ctrl-input {
   background:var(--raised); border:1px solid var(--b1);
   border-radius:var(--r1); padding:6px 10px;
@@ -551,7 +530,6 @@ canvas.gc { width:100%!important; display:block; }
   margin:0 2px;
 }
 
-/* ── AWAITING STATE ── */
 .await-state {
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
@@ -569,7 +547,6 @@ canvas.gc { width:100%!important; display:block; }
 }
 .await-desc b { color:var(--acc); font-weight:400; }
 
-/* ── ERROR STATE ── */
 .error-msg {
   padding:12px 16px; margin:12px 0;
   background:rgba(138,64,64,0.08);
@@ -579,7 +556,6 @@ canvas.gc { width:100%!important; display:block; }
   line-height:1.5; word-break:break-word;
 }
 
-/* ── LOADING SPINNER ── */
 @keyframes spin { to { transform:rotate(360deg); } }
 .spinner {
   width:16px; height:16px; border:2px solid var(--b2);
@@ -588,7 +564,6 @@ canvas.gc { width:100%!important; display:block; }
   display:inline-block; vertical-align:middle; margin-right:6px;
 }
 
-/* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width:3px; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(--b2); border-radius:2px; }

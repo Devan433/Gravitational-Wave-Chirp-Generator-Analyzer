@@ -1,12 +1,7 @@
+/* eslint-disable */
 /* jshint esversion: 8 */
 /* global document, window, $, Chart, fetch, requestAnimationFrame, console, AudioContext */
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   GRAVITATIONAL WAVE OBSERVATORY â€” Application Logic
-   Connects the deep-space UI to the FastAPI physics backend
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-
-/* â”€â”€ PALETTE CONSTANTS â”€â”€ */
 const ACC    = '#7ba7c8';
 const ACC2   = 'rgba(123,167,200,0.55)';
 const ACC_F  = 'rgba(123,167,200,0.08)';
@@ -27,7 +22,6 @@ const MONO   = "'Space Mono',monospace";
 const MODEL_COLORS = { imrphenomd: ACC, taylorf2: MER, pn_ringdown: RING };
 const MODEL_LABELS = { imrphenomd: 'IMRPhenomD', taylorf2: 'TaylorF2 (SPA)', pn_ringdown: 'TaylorT4+Ringdown' };
 
-/* â”€â”€ STATE â”€â”€ */
 const S = {
   m1: 36, m2: 29,
   s1z: 0, s2z: 0,
@@ -35,20 +29,32 @@ const S = {
   result: null, audioEl: null, playing: false,
 };
 
-/* â”€â”€ UTILITIES â”€â”€ */
-const $ = id => document.getElementById(id);
-const charts = {};
+const docId = id => document.getElementById(id);
+const charts = new Map();
+
+function setHtmlSafe(elId, val, unit, unitClass="pc-unit") {
+  const el = docId(elId);
+  if (!el) return;
+  el.textContent = val;
+  if (unit) {
+    const span = document.createElement('span');
+    span.className = unitClass;
+    span.textContent = unit;
+    el.appendChild(span);
+  }
+}
+
 
 function destroyChart(id) {
-  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+  if (charts.has(id)) { charts.get(id).destroy(); charts.delete(id); }
 }
 
 function makeChart(canvasId, type, data, options) {
   destroyChart(canvasId);
-  const cv = $(canvasId);
+  const cv = docId(canvasId);
   if (!cv) return null;
-  charts[canvasId] = new Chart(cv, { type, data, options });
-  return charts[canvasId];
+  charts.set(canvasId, new Chart(cv, { type, data, options }));
+  return charts.get(canvasId);
 }
 
 function chartOpts(xlbl, ylbl, extra) {
@@ -79,20 +85,18 @@ function chartOpts(xlbl, ylbl, extra) {
   return o;
 }
 
-/* â”€â”€ CLOCK â”€â”€ */
 function tick() {
   const n = new Date(), p = v => String(v).padStart(2, '0');
-  $('clock').textContent =
+  docId('clock').textContent =
     `${n.getUTCFullYear()}-${p(n.getUTCMonth()+1)}-${p(n.getUTCDate())} ` +
     `${p(n.getUTCHours())}:${p(n.getUTCMinutes())}:${p(n.getUTCSeconds())} UTC`;
 }
 tick(); setInterval(tick, 1000);
 
-/* â”€â”€ TAB SWITCHING â”€â”€ */
 function switchTab(id) {
   document.querySelectorAll('.tp').forEach(t => t.classList.remove('on'));
   document.querySelectorAll('.tb').forEach(b => b.classList.remove('on'));
-  $('tp-' + id).classList.add('on');
+  docId('tp-' + id).classList.add('on');
   document.querySelector(`[data-tab="${id}"]`).classList.add('on');
   requestAnimationFrame(() => {
     Object.values(charts).forEach(c => { try { c.resize(); } catch(e) {} });
@@ -102,13 +106,8 @@ document.querySelectorAll('.tb').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   AMBIENT ANIMATIONS
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-
-/* â”€â”€ DEEP SPACE STARFIELD â”€â”€ */
 (function() {
-  const cv = $('cosmos'), cx = cv.getContext('2d');
+  const cv = docId('cosmos'), cx = cv.getContext('2d');
   let W, H, stars = [];
   function resize() {
     W = cv.width = innerWidth; H = cv.height = innerHeight;
@@ -143,9 +142,8 @@ document.querySelectorAll('.tb').forEach(btn => {
   draw();
 })();
 
-/* â”€â”€ AMBIENT BLACK HOLE â”€â”€ */
 (function() {
-  const cv = $('bh-ambient'), cx = cv.getContext('2d');
+  const cv = docId('bh-ambient'), cx = cv.getContext('2d');
   const W = 520, H = 520; cv.width = W; cv.height = H;
   let phase = 0;
   function draw() {
@@ -181,10 +179,9 @@ document.querySelectorAll('.tb').forEach(btn => {
   draw();
 })();
 
-/* â”€â”€ ORBIT ANIMATION â”€â”€ */
 const orbitState = { phi: 0 };
 (function() {
-  const cv = $('orbit-canvas'), cx = cv.getContext('2d');
+  const cv = docId('orbit-canvas'), cx = cv.getContext('2d');
   const W = 240, H = 148, CX = 120, CY = 74;
 
   function bh(x, y, r, col, gcolBase) {
@@ -230,10 +227,6 @@ const orbitState = { phi: 0 };
   draw();
 })();
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   CLIENT-SIDE PHYSICS
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-
 function computeBasicPhysics(m1, m2, s1z, s2z) {
   const M = m1 + m2;
   const eta = (m1 * m2) / (M * M);
@@ -246,69 +239,61 @@ function computeBasicPhysics(m1, m2, s1z, s2z) {
 
 function updateDerivedPhysics() {
   const p = computeBasicPhysics(S.m1, S.m2, S.s1z, S.s2z);
-  $('p-mtot').innerHTML = `${p.M.toFixed(1)}<span class="pc-unit">Mâ˜‰</span>`;
-  $('p-mc').innerHTML = `${p.Mc.toFixed(2)}<span class="pc-unit">Mâ˜‰</span>`;
-  $('p-eta').textContent = p.eta.toFixed(4);
-  $('p-chi').textContent = p.chi_eff.toFixed(3);
-  $('p-fisco').innerHTML = `${p.fisco.toFixed(1)}<span class="pc-unit">Hz</span>`;
+  setHtmlSafe('p-mtot', p.M.toFixed(1), 'M☉', 'pc-unit');
+  setHtmlSafe('p-mc', p.Mc.toFixed(2), 'M☉', 'pc-unit');
+  docId('p-eta').textContent = p.eta.toFixed(4);
+  docId('p-chi').textContent = p.chi_eff.toFixed(3);
+  setHtmlSafe('p-fisco', p.fisco.toFixed(1), 'Hz', 'pc-unit');
   // Ratio bar
-  $('ratio-m1').textContent = `Mâ‚ ${S.m1} Mâ˜‰`;
-  $('ratio-m2').textContent = `Mâ‚‚ ${S.m2} Mâ˜‰`;
-  $('ratio-eta').textContent = `Î· = ${p.eta.toFixed(4)}`;
-  $('ratio-fill').style.width = `${(S.m1 / p.M) * 100}%`;
+  docId('ratio-m1').textContent = `m₁ ${S.m1} M☉`;
+  docId('ratio-m2').textContent = `m₂ ${S.m2} M☉`;
+  docId('ratio-eta').textContent = `η = ${p.eta.toFixed(4)}`;
+  docId('ratio-fill').style.width = `${(S.m1 / p.M) * 100}%`;
   // Confidence bars
-  $('conf-mtot').style.width = `${Math.min(100, p.M / 160 * 100)}%`;
-  $('conf-mc').style.width = `${Math.min(100, p.Mc / 65 * 100)}%`;
+  docId('conf-mtot').style.width = `${Math.min(100, p.M / 160 * 100)}%`;
+  docId('conf-mc').style.width = `${Math.min(100, p.Mc / 65 * 100)}%`;
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   SLIDER HANDLERS
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-
 function initSliders() {
-  $('sl-m1').addEventListener('input', function() {
+  docId('sl-m1').addEventListener('input', function() {
     S.m1 = parseFloat(this.value);
     if (S.m1 < S.m2) {
       S.m2 = S.m1;
-      $('sl-m2').value = S.m2;
-      $('v-m2').textContent = S.m2.toFixed(1) + ' Mâ˜‰';
+      docId('sl-m2').value = S.m2;
+      docId('v-m2').textContent = S.m2.toFixed(1) + ' M☉';
     }
-    $('v-m1').textContent = S.m1.toFixed(1) + ' Mâ˜‰';
+    docId('v-m1').textContent = S.m1.toFixed(1) + ' M☉';
     updateDerivedPhysics();
   });
-  $('sl-m2').addEventListener('input', function() {
+  docId('sl-m2').addEventListener('input', function() {
     S.m2 = parseFloat(this.value);
     if (S.m2 > S.m1) {
       S.m1 = S.m2;
-      $('sl-m1').value = S.m1;
-      $('v-m1').textContent = S.m1.toFixed(1) + ' Mâ˜‰';
+      docId('sl-m1').value = S.m1;
+      docId('v-m1').textContent = S.m1.toFixed(1) + ' M☉';
     }
-    $('v-m2').textContent = S.m2.toFixed(1) + ' Mâ˜‰';
+    docId('v-m2').textContent = S.m2.toFixed(1) + ' M☉';
     updateDerivedPhysics();
   });
-  $('sl-s1z').addEventListener('input', function() {
+  docId('sl-s1z').addEventListener('input', function() {
     S.s1z = parseFloat(this.value);
-    $('v-s1z').textContent = S.s1z.toFixed(2);
+    docId('v-s1z').textContent = S.s1z.toFixed(2);
     updateDerivedPhysics();
   });
-  $('sl-s2z').addEventListener('input', function() {
+  docId('sl-s2z').addEventListener('input', function() {
     S.s2z = parseFloat(this.value);
-    $('v-s2z').textContent = S.s2z.toFixed(2);
+    docId('v-s2z').textContent = S.s2z.toFixed(2);
     updateDerivedPhysics();
   });
-  $('sl-dist').addEventListener('input', function() {
+  docId('sl-dist').addEventListener('input', function() {
     S.distance = parseFloat(this.value);
-    $('v-dist').textContent = S.distance.toFixed(0) + ' Mpc';
+    docId('v-dist').textContent = S.distance.toFixed(0) + ' Mpc';
   });
-  $('sl-inc').addEventListener('input', function() {
+  docId('sl-inc').addEventListener('input', function() {
     S.inclination = parseFloat(this.value);
-    $('v-inc').textContent = S.inclination.toFixed(2) + ' rad';
+    docId('v-inc').textContent = S.inclination.toFixed(2) + ' rad';
   });
 }
-
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   IRON COLORMAP (for Q-Transform & heatmaps)
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 function ironRgb(v) {
   if (v < 0.4) {
@@ -331,12 +316,8 @@ function viridisRgb(v) {
   return [Math.floor(123 + 130 * t), Math.floor(181 + 50 * t), Math.floor(78 - 50 * t)];
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   API: ANALYZE  (/analyze)
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-
 async function runAnalysis() {
-  const btn = $('btn-generate');
+  const btn = docId('btn-generate');
   btn.classList.add('loading');
   btn.innerHTML = '<span class="spinner"></span> Analyzing...';
 
@@ -359,8 +340,8 @@ async function runAnalysis() {
     }
 
     S.result = data;
-    $('pipe-elapsed').textContent = data.elapsed + 's';
-    $('analysis-await').style.display = 'none';
+    docId('pipe-elapsed').textContent = data.elapsed + 's';
+    docId('analysis-await').style.display = 'none';
 
     updateKPIs(data.physics);
     updateSidebarPhysics(data.physics);
@@ -374,46 +355,46 @@ async function runAnalysis() {
     showError('analysis-await', 'Connection failed: ' + e.message);
   } finally {
     btn.classList.remove('loading');
-    btn.innerHTML = 'â–¶ Generate Waveform';
+    btn.innerHTML = 'Generate Waveform';
   }
 }
 
 function showError(containerId, msg) {
-  const el = $(containerId);
+  const el = docId(containerId);
   el.style.display = 'block';
-  el.innerHTML = `<div class="error-msg">âš  ${msg}</div>`;
+  el.textContent = "";
+  const div = document.createElement("div");
+  div.className = "error-msg";
+  div.textContent = "⚠️ " + msg;
+  el.appendChild(div);
 }
 
 function updateKPIs(p) {
-  $('kpi-mc').innerHTML = `${p.chirp_mass.toFixed(2)}<span class="kpi-unit">Mâ˜‰</span>`;
-  $('kpi-snr').textContent = p.optimal_snr.toFixed(1);
-  $('kpi-erad').innerHTML = `${p.energy_radiated.toFixed(2)}<span class="kpi-unit">Mâ˜‰cÂ²</span>`;
-  $('kpi-af').textContent = p.final_spin.toFixed(3);
-  $('kpi-dist').innerHTML = `${p.distance_mpc}<span class="kpi-unit">Mpc</span>`;
+  setHtmlSafe('kpi-mc', p.chirp_mass.toFixed(2), 'M☉', 'kpi-unit');
+  docId('kpi-snr').textContent = p.optimal_snr.toFixed(1);
+  setHtmlSafe('kpi-erad', p.energy_radiated.toFixed(2), 'M☉c²', 'kpi-unit');
+  docId('kpi-af').textContent = p.final_spin.toFixed(3);
+  setHtmlSafe('kpi-dist', p.distance_mpc, 'Mpc', 'kpi-unit');
 }
 
 function updateSidebarPhysics(p) {
-  $('p-mtot').innerHTML = `${p.total_mass.toFixed(1)}<span class="pc-unit">Mâ˜‰</span>`;
-  $('p-mc').innerHTML = `${p.chirp_mass.toFixed(2)}<span class="pc-unit">Mâ˜‰</span>`;
-  $('p-eta').textContent = p.eta.toFixed(4);
-  $('p-chi').textContent = p.chi_eff.toFixed(3);
-  $('p-fisco').innerHTML = `${p.f_isco_hz.toFixed(1)}<span class="pc-unit">Hz</span>`;
-  $('p-fring').innerHTML = `${p.f_ring_hz.toFixed(1)}<span class="pc-unit">Hz</span>`;
-  $('p-fqnm').innerHTML = `${p.f_qnm_hz.toFixed(1)}<span class="pc-unit">Hz</span>`;
-  $('p-tau').innerHTML = `${(p.tau_qnm_s * 1000).toFixed(2)}<span class="pc-unit">ms</span>`;
-  $('p-mf').innerHTML = `${p.final_mass.toFixed(1)}<span class="pc-unit">Mâ˜‰</span>`;
-  $('p-af').textContent = p.final_spin.toFixed(3);
-  $('p-erad').innerHTML = `${p.energy_radiated.toFixed(2)}<span class="pc-unit">Mâ˜‰cÂ²</span>`;
-  $('p-qf').textContent = p.quality_factor.toFixed(1);
-  $('p-hpeak').textContent = p.peak_strain.toExponential(2);
-  $('p-osnr').textContent = p.optimal_snr.toFixed(1);
-  $('p-psnr').textContent = p.peak_snr.toFixed(1);
-  $('p-dur').innerHTML = `${p.duration.toFixed(3)}<span class="pc-unit">s</span>`;
+  setHtmlSafe('p-mtot', p.total_mass.toFixed(1), 'M☉', 'pc-unit');
+  setHtmlSafe('p-mc', p.chirp_mass.toFixed(2), 'M☉', 'pc-unit');
+  docId('p-eta').textContent = p.eta.toFixed(4);
+  docId('p-chi').textContent = p.chi_eff.toFixed(3);
+  setHtmlSafe('p-fisco', p.f_isco_hz.toFixed(1), 'Hz', 'pc-unit');
+  setHtmlSafe('p-fring', p.f_ring_hz.toFixed(1), 'Hz', 'pc-unit');
+  setHtmlSafe('p-fqnm', p.f_qnm_hz.toFixed(1), 'Hz', 'pc-unit');
+  setHtmlSafe('p-tau', (p.tau_qnm_s * 1000).toFixed(2), 'ms', 'pc-unit');
+  setHtmlSafe('p-mf', p.final_mass.toFixed(1), 'M☉', 'pc-unit');
+  docId('p-af').textContent = p.final_spin.toFixed(3);
+  setHtmlSafe('p-erad', p.energy_radiated.toFixed(2), 'M☉c²', 'pc-unit');
+  docId('p-qf').textContent = p.quality_factor.toFixed(1);
+  docId('p-hpeak').textContent = p.peak_strain.toExponential(2);
+  docId('p-osnr').textContent = p.optimal_snr.toFixed(1);
+  docId('p-psnr').textContent = p.peak_snr.toFixed(1);
+  setHtmlSafe('p-dur', p.duration.toFixed(3), 's', 'pc-unit');
 }
-
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   RENDER: ANALYSIS CHARTS
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 function renderStrainChart(wf) {
   const pts_hp = wf.time.map((t, i) => ({ x: t, y: wf.h_plus[i] }));
@@ -421,7 +402,7 @@ function renderStrainChart(wf) {
   makeChart('c-strain', 'scatter', {
     datasets: [
       { data: pts_hp, showLine: true, borderColor: SIG, borderWidth: 1.1, pointRadius: 0, tension: 0.1, label: 'h+(t)' },
-      { data: pts_hx, showLine: true, borderColor: SIG2, borderWidth: 0.9, borderDash: [4, 4], pointRadius: 0, tension: 0.1, label: 'hÃ—(t)' },
+      { data: pts_hx, showLine: true, borderColor: SIG2, borderWidth: 0.9, borderDash: [4, 4], pointRadius: 0, tension: 0.1, label: 'h×(t)' },
     ],
   }, chartOpts('Time [ms]', 'Strain'));
 }
@@ -432,11 +413,11 @@ function renderSNRChart(snr) {
   makeChart('c-snr', 'scatter', {
     datasets: [
       { data: pts, showLine: true, borderColor: SIG, borderWidth: 1.1, pointRadius: 0,
-        fill: { target: 'origin', above: 'rgba(216,221,230,0.04)' }, tension: 0.15, label: 'Ï(t)' },
+        fill: { target: 'origin', above: 'rgba(216,221,230,0.04)' }, tension: 0.15, label: 'ρ (t)' },
       { data: thresh, showLine: true, borderColor: ALERT, borderWidth: 0.9,
         borderDash: [5, 4], pointRadius: 0, fill: false, label: 'Threshold' },
     ],
-  }, chartOpts('Time [ms]', 'SNR Ï(t)', { scales: { y: { min: 0 } } }));
+  }, chartOpts('Time [ms]', 'SNR ρ (t)', { scales: { y: { min: 0 } } }));
 }
 
 function renderFreqChart(wf) {
@@ -449,9 +430,8 @@ function renderFreqChart(wf) {
   }, chartOpts('Time [ms]', 'f [Hz]', { scales: { y: { min: 0, max: 520 } } }));
 }
 
-/* â”€â”€ Q-TRANSFORM (canvas pixel rendering) â”€â”€ */
 function renderQTransform(spec, freqTrack) {
-  const cv = $('c-qtrans');
+  const cv = docId('c-qtrans');
   if (!cv) return;
   const cx = cv.getContext('2d');
   const container = cv.parentElement;
@@ -533,19 +513,15 @@ function renderQTransform(spec, freqTrack) {
   cx.fillText('0', W - 8, H - 3);
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   API: COMPARE  (/compare)
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-
 async function runCompare() {
-  const btn = $('btn-compare');
+  const btn = docId('btn-compare');
   btn.classList.add('loading');
   btn.textContent = 'Computing...';
 
   const models = [];
-  if ($('chk-imr').checked) models.push('imrphenomd');
-  if ($('chk-tay').checked) models.push('taylorf2');
-  if ($('chk-pnr').checked) models.push('pn_ringdown');
+  if (docId('chk-imr').checked) models.push('imrphenomd');
+  if (docId('chk-tay').checked) models.push('taylorf2');
+  if (docId('chk-pnr').checked) models.push('pn_ringdown');
   if (!models.length) {
     btn.classList.remove('loading'); btn.textContent = 'Compare Models';
     return;
@@ -566,9 +542,9 @@ async function runCompare() {
       showError('compare-await', data.error); return;
     }
 
-    $('compare-await').style.display = 'none';
-    $('cmp-charts').style.display = 'grid';
-    $('cmp-table-panel').style.display = 'block';
+    docId('compare-await').style.display = 'none';
+    docId('cmp-charts').style.display = 'grid';
+    docId('cmp-table-panel').style.display = 'block';
 
     const ok = Object.entries(data.models).filter(([, v]) => v.status === 'ok');
 
@@ -604,31 +580,31 @@ async function runCompare() {
 }
 
 function renderLegend(containerId, items) {
-  const el = $(containerId);
+  const el = docId(containerId);
   el.innerHTML = items.map(([lbl, col]) =>
     `<div class="leg-i"><div class="leg-ln" style="background:${col}"></div>${lbl}</div>`
   ).join('');
 }
 
 function buildCompareTable(ok) {
-  const thead = $('cmp-thead');
+  const thead = docId('cmp-thead');
   thead.innerHTML = '<tr><th>Parameter</th>' + ok.map(([n]) =>
     `<th style="text-align:right;color:${MODEL_COLORS[n]}">${MODEL_LABELS[n] || n}</th>`
   ).join('') + '</tr>';
 
   const params = [
-    ['Chirp Mass (Mâ˜‰)', 'chirp_mass_solar'],
-    ['Total Mass (Mâ˜‰)', 'total_mass_solar'],
+    ['Chirp Mass (M☉)', 'chirp_mass_solar'],
+    ['Total Mass (M☉)', 'total_mass_solar'],
     ['f_ISCO (Hz)', 'f_isco_hz'],
     ['Duration (s)', 'duration_seconds'],
     ['Peak Strain', 'peak_strain'],
     ['Phase Model', 'method'],
   ];
-  const tbody = $('cmp-tbody');
+  const tbody = docId('cmp-tbody');
   tbody.innerHTML = params.map(([label, key]) =>
     `<tr><td>${label}</td>` + ok.map(([, m]) => {
       const v = m.params?.[key];
-      const s = v === undefined ? 'â€”'
+      const s = v === undefined ? '—'
         : typeof v === 'number' ? (Math.abs(v) < 0.01 ? v.toExponential(2) : v.toFixed(3))
         : v;
       return `<td style="text-align:right">${s}</td>`;
@@ -636,12 +612,8 @@ function buildCompareTable(ok) {
   ).join('');
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   API: PARAMETER ESTIMATION  (/estimate)
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-
 async function runEstimate() {
-  const btn = $('btn-estimate');
+  const btn = docId('btn-estimate');
   btn.classList.add('loading');
   btn.textContent = 'Searching...';
 
@@ -653,8 +625,8 @@ async function runEstimate() {
         m1_true: S.m1, m2_true: S.m2,
         s1z_true: S.s1z, s2z_true: S.s2z,
         distance: S.distance,
-        m1_min: +$('pe-m1min').value, m1_max: +$('pe-m1max').value,
-        m2_min: +$('pe-m2min').value, m2_max: +$('pe-m2max').value,
+        m1_min: +docId('pe-m1min').value, m1_max: +docId('pe-m1max').value,
+        m2_min: +docId('pe-m2min').value, m2_max: +docId('pe-m2max').value,
         coarse_step: 3.0, fine_step: 0.5,
       }),
     });
@@ -664,9 +636,9 @@ async function runEstimate() {
       showError('pe-await', data.error); return;
     }
 
-    $('pe-await').style.display = 'none';
-    $('pe-results').style.display = 'block';
-    $('pe-badge').textContent = `${data.n_templates} templates Â· ${data.elapsed}s`;
+    docId('pe-await').style.display = 'none';
+    docId('pe-results').style.display = 'block';
+    docId('pe-badge').textContent = `${data.n_templates} templates · ${data.elapsed}s`;
 
     renderPEHeatmap(data.fine_grid, data.true_params, data.estimated_params);
     renderPEMarginals(data.fine_grid);
@@ -684,7 +656,7 @@ async function runEstimate() {
 function renderPEHeatmap(grid, trueP, estP) {
   renderHeatmap('c-pe-heat', grid.match_matrix, grid.m2_values, grid.m1_values,
     viridisRgb, {
-      xlabel: 'mâ‚‚ [Mâ˜‰]', ylabel: 'mâ‚ [Mâ˜‰]',
+      xlabel: 'm₂ [M☉]', ylabel: 'm₁ [M☉]',
       markers: [
         { x: trueP.m2, y: trueP.m1, color: '#ff4444', symbol: 'x', label: 'True' },
         { x: estP.m2, y: estP.m1, color: LIVE, symbol: 'star', label: 'Est.' },
@@ -702,7 +674,7 @@ function renderPEMarginals(grid) {
       showLine: true, borderColor: ACC, borderWidth: 1.2, pointRadius: 0,
       fill: { target: 'origin', above: ACC_F }, tension: 0.3,
     }],
-  }, chartOpts('Mâ‚ [Mâ˜‰]', 'Match'));
+  }, chartOpts('m₁ [M☉]', 'Match'));
 
   // M2 marginal: best match for each m2
   const m2Vals = grid.m2_values;
@@ -718,7 +690,7 @@ function renderPEMarginals(grid) {
       showLine: true, borderColor: MER, borderWidth: 1.2, pointRadius: 0,
       fill: { target: 'origin', above: MER_F }, tension: 0.3,
     }],
-  }, chartOpts('Mâ‚‚ [Mâ˜‰]', 'Match'));
+  }, chartOpts('m₂ [M☉]', 'Match'));
 }
 
 function renderPEChirpMassPosterior(grid) {
@@ -752,7 +724,7 @@ function renderPEChirpMassPosterior(grid) {
       data: pts, showLine: true, borderColor: RING, borderWidth: 1.2, pointRadius: 0,
       fill: { target: 'origin', above: RING_F }, tension: 0.3,
     }],
-  }, chartOpts('Chirp Mass [Mâ˜‰]', 'Match'));
+  }, chartOpts('Chirp Mass [M☉]', 'Match'));
 }
 
 function renderPEWaveformOverlay(data) {
@@ -770,12 +742,8 @@ function renderPEWaveformOverlay(data) {
   }, chartOpts('Time [ms]', 'Strain'));
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   API: DETECTOR NETWORK  (/network)
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-
 async function runNetwork() {
-  const btn = $('btn-network');
+  const btn = docId('btn-network');
   btn.classList.add('loading');
   btn.textContent = 'Computing...';
 
@@ -786,8 +754,8 @@ async function runNetwork() {
       body: JSON.stringify({
         m1: S.m1, m2: S.m2, s1z: S.s1z, s2z: S.s2z,
         distance: S.distance, inclination: S.inclination,
-        ra: +$('net-ra').value, dec: +$('net-dec').value,
-        psi: +$('net-psi').value,
+        ra: +docId('net-ra').value, dec: +docId('net-dec').value,
+        psi: +docId('net-psi').value,
         detectors: ['H1', 'L1', 'V1', 'K1'],
       }),
     });
@@ -797,12 +765,12 @@ async function runNetwork() {
       showError('tp-network', data.error); return;
     }
 
-    $('net-badge').textContent = `Network SNR: ${data.network_snr}`;
+    docId('net-badge').textContent = `Network SNR: ${data.network_snr}`;
 
     // Update detector cards
     const detMap = { H1: 'det-h1-snr', L1: 'det-l1-snr', V1: 'det-v1-snr', K1: 'det-k1-snr' };
     Object.entries(data.detectors).forEach(([k, d]) => {
-      const el = $(detMap[k]);
+      const el = docId(detMap[k]);
       if (el) el.textContent = d.optimal_snr.toFixed(1);
     });
 
@@ -818,7 +786,7 @@ async function runNetwork() {
 }
 
 function renderNetworkMap(data) {
-  const cv = $('c-netmap');
+  const cv = docId('c-netmap');
   if (!cv) return;
   const cx = cv.getContext('2d');
   const W = cv.width = cv.parentElement.offsetWidth - 30;
@@ -858,7 +826,7 @@ function renderNetworkMap(data) {
     H1: { lat: 46.455, lon: -119.408, color: ACC, glow: 'rgba(123,167,200,0.3)' },
     L1: { lat: 30.563, lon: -90.774, color: MER, glow: 'rgba(181,98,60,0.3)' },
     V1: { lat: 43.631, lon: 10.505, color: RING, glow: 'rgba(74,114,102,0.3)' },
-    K1: { lat: 36.410, lon: 137.306, color: '#445568', glow: 'rgba(68,85,104,0.3)' },
+    K1: { lat: 36.410, lon: 137.306, color: '#ffd166', glow: 'rgba(255,209,102,0.3)' },
   };
 
   // Draw connections between active detectors
@@ -942,11 +910,11 @@ function renderNetworkMap(data) {
   cx.font = "7px 'Space Mono',monospace";
   cx.textAlign = 'center';
   [-180, -120, -60, 0, 60, 120, 180].forEach(lon => {
-    cx.fillText(`${lon}Â°`, margin.left + (lon + 180) / 360 * pW, H - 3);
+    cx.fillText(`${lon}°`, margin.left + (lon + 180) / 360 * pW, H - 3);
   });
   cx.textAlign = 'right';
   [-60, -30, 0, 30, 60].forEach(lat => {
-    cx.fillText(`${lat}Â°`, margin.left - 4, margin.top + (90 - lat) / 180 * pH + 3);
+    cx.fillText(`${lat}°`, margin.left - 4, margin.top + (90 - lat) / 180 * pH + 3);
   });
 }
 
@@ -972,7 +940,7 @@ function renderTimingChart(data) {
     responsive: true, maintainAspectRatio: false,
     indexAxis: 'y',
     plugins: { legend: { display: false }, tooltip: {
-      callbacks: { label: ctx => `Î”t = ${ctx.parsed.x.toFixed(3)} ms` },
+      callbacks: { label: ctx => `Δt = ${ctx.parsed.x.toFixed(3)} ms` },
       backgroundColor: 'rgba(8,12,20,0.92)', bodyFont: { family: MONO, size: 9 },
       bodyColor: SIG, cornerRadius: 4,
     }},
@@ -986,16 +954,12 @@ function renderTimingChart(data) {
   });
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   API: PARAMETER SPACE  (/parameter_space)
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-
 async function runParamSpace() {
-  const btn = $('btn-parspace');
+  const btn = docId('btn-parspace');
   btn.classList.add('loading');
   btn.textContent = 'Computing...';
 
-  const quantity = $('ps-quantity').value;
+  const quantity = docId('ps-quantity').value;
 
   try {
     const res = await fetch('/parameter_space', {
@@ -1013,7 +977,7 @@ async function runParamSpace() {
       console.error(data.error); return;
     }
 
-    $('ps-badge').textContent = `${quantity} · ${data.elapsed}s`;
+    docId('ps-badge').textContent = `${quantity} · ${data.elapsed}s`;
 
     if (data.grid && data.grid[quantity]) {
       renderHeatmap('c-spacetime', data.grid[quantity],
@@ -1034,12 +998,8 @@ async function runParamSpace() {
   }
 }
 
-/* ────────────────────────────────────────────────────────── 
-   GENERIC HEATMAP RENDERER
-   ──────────────────────────────────────────────────────────  */
-
 function renderHeatmap(canvasId, data2D, xVals, yVals, colormap, opts = {}) {
-  const cv = $(canvasId);
+  const cv = docId(canvasId);
   if (!cv || !data2D || !data2D.length) return;
   const cx = cv.getContext('2d');
   const W = cv.parentElement.offsetWidth - 30;
@@ -1149,16 +1109,12 @@ function renderHeatmap(canvasId, data2D, xVals, yVals, colormap, opts = {}) {
   cx.fillText(minV.toPrecision(3), cbX - 2, m.top + pH);
 }
 
-/* ────────────────────────────────────────────────────────── 
-   PARAMETER SPACE: DECORATIVE CANVASES
-   ──────────────────────────────────────────────────────────  */
-
 function renderMassSpinDiagram(m1, m2, s1z, s2z) {
   const m1Min = 5, m1Max = 100, m2Min = 5, m2Max = 100;
   const sMin = -1, sMax = 1;
 
   destroyChart('c-mass-spin');
-  const cv = $('c-massspin');
+  const cv = docId('c-massspin');
   if (!cv) return;
   const cx = cv.getContext('2d');
   const W = cv.parentElement.offsetWidth - 30;
@@ -1244,7 +1200,7 @@ function renderMassSpinDiagram(m1, m2, s1z, s2z) {
 }
 
 function renderChirpMassContours() {
-  const cv = $('c-skyloc');
+  const cv = docId('c-skyloc');
   if (!cv) return;
   const cx = cv.getContext('2d');
   const W = cv.parentElement.offsetWidth - 30;
@@ -1304,21 +1260,17 @@ function renderChirpMassContours() {
   cx.fillStyle = 'rgba(160,180,220,0.4)';
   cx.font = "7px 'Space Mono',monospace";
   cx.textAlign = 'center';
-  cx.fillText('mâ‚ [Mâ˜‰]', m.left + pW / 2, H - 3);
+  cx.fillText('m₁ [M☉]', m.left + pW / 2, H - 3);
   cx.save(); cx.translate(8, m.top + pH / 2); cx.rotate(-Math.PI / 2);
-  cx.fillText('mâ‚‚ [Mâ˜‰]', 0, 0); cx.restore();
+  cx.fillText('m₂ [M☉]', 0, 0); cx.restore();
 }
-
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   AUDIO PLAYER
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 function setupAudio(base64, duration) {
   if (S.audioEl) { S.audioEl.pause(); S.audioEl = null; }
   S.playing = false;
   updateAudioUI();
 
-  $('audio-sub').textContent = duration ? `${duration.toFixed(1)}s Â· Freq-shifted for audibility` : 'â€”';
+  docId('audio-sub').textContent = duration ? `${duration.toFixed(1)}s · Freq-shifted for audibility` : '—';
 
   if (base64) {
     S.audioEl = new Audio(`data:audio/wav;base64,${base64}`);
@@ -1339,47 +1291,72 @@ function toggleAudio() {
 }
 
 function updateAudioUI() {
-  const btn = $('btn-audio');
-  const wv = $('wv-bars');
+  const btn = docId('btn-audio');
+  const wv = docId('wv-bars');
   btn.textContent = S.playing ? 'Stop' : 'Play';
   btn.classList.toggle('playing', S.playing);
   wv.classList.toggle('paused', !S.playing);
 }
-
-/* ────────────────────────────────────────────────────────── 
-   PRESET LOADER
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 function loadPreset() {
   S.m1 = 36; S.m2 = 29; 
   S.s1z = 0; S.s2z = 0;
   S.distance = 410; S.inclination = 0;
   
-  $('sl-m1').value = 36; $('v-m1').textContent = '36.0 Mâ˜‰';
-  $('sl-m2').value = 29; $('v-m2').textContent = '29.0 Mâ˜‰';
-  $('sl-s1z').value = 0; $('v-s1z').textContent = '0.00';
-  $('sl-s2z').value = 0; $('v-s2z').textContent = '0.00';
-  $('sl-dist').value = 410; $('v-dist').textContent = '410 Mpc';
-  $('sl-inc').value = 0; $('v-inc').textContent = '0.00 rad';
+  docId('sl-m1').value = 36; docId('v-m1').textContent = '36.0 M☉';
+  docId('sl-m2').value = 29; docId('v-m2').textContent = '29.0 M☉';
+  docId('sl-s1z').value = 0; docId('v-s1z').textContent = '0.00';
+  docId('sl-s2z').value = 0; docId('v-s2z').textContent = '0.00';
+  docId('sl-dist').value = 410; docId('v-dist').textContent = '410 Mpc';
+  docId('sl-inc').value = 0; docId('v-inc').textContent = '0.00 rad';
   
   updateDerivedPhysics();
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   INITIALIZATION
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+async function fetchDetectorStatus() {
+  try {
+    const res = await fetch('/detector_status');
+    const data = await res.json();
+    ['H1', 'L1', 'V1', 'K1'].forEach(det => {
+      const chip = docId('chip-' + det);
+      if (chip) {
+        chip.className = Object.prototype.hasOwnProperty.call(data, det) && data[det] ? 'chip on' : 'chip off';
+      }
+    });
+    
+    const isOnline = Boolean(data.H1 || data.L1 || data.V1 || data.K1);
+    const dot = docId('live-dot-icon');
+    const txt = docId('live-text');
+    if (dot && txt) {
+      if (isOnline) {
+        txt.textContent = 'ONLINE';
+        dot.style.background = 'var(--live)';
+        dot.style.boxShadow = '0 0 5px var(--live)';
+        dot.style.animation = 'livepulse 2.8s ease-in-out infinite';
+      } else {
+        txt.textContent = 'OFFLINE';
+        dot.style.background = 'var(--alert)';
+        dot.style.boxShadow = '0 0 5px var(--alert)';
+        dot.style.animation = 'none';
+      }
+    }
+  } catch (e) {
+    console.error('Failed to fetch detector status:', e);
+  }
+}
 
 function init() {
+  fetchDetectorStatus();
   initSliders();
   updateDerivedPhysics();
 
-  $('btn-generate').addEventListener('click', runAnalysis);
-  $('btn-preset').addEventListener('click', loadPreset);
-  $('btn-audio').addEventListener('click', toggleAudio);
-  $('btn-compare').addEventListener('click', runCompare);
-  $('btn-estimate').addEventListener('click', runEstimate);
-  $('btn-network').addEventListener('click', runNetwork);
-  $('btn-parspace').addEventListener('click', runParamSpace);
+  docId('btn-generate').addEventListener('click', runAnalysis);
+  docId('btn-preset').addEventListener('click', loadPreset);
+  docId('btn-audio').addEventListener('click', toggleAudio);
+  docId('btn-compare').addEventListener('click', runCompare);
+  docId('btn-estimate').addEventListener('click', runEstimate);
+  docId('btn-network').addEventListener('click', runNetwork);
+  docId('btn-parspace').addEventListener('click', runParamSpace);
 
   // Render initial decorative canvases
   renderMassSpinDiagram();
@@ -1389,7 +1366,7 @@ function init() {
 
 function renderNetworkMapStatic() {
   // Render initial network map without data
-  const cv = $('c-netmap');
+  const cv = docId('c-netmap');
   if (!cv) return;
   const cx = cv.getContext('2d');
   const W = cv.width = cv.parentElement.offsetWidth - 30;
@@ -1417,12 +1394,12 @@ function renderNetworkMapStatic() {
     H1: { lat: 46.455, lon: -119.408, color: ACC },
     L1: { lat: 30.563, lon: -90.774, color: MER },
     V1: { lat: 43.631, lon: 10.505, color: RING },
-    K1: { lat: 36.410, lon: 137.306, color: 'rgba(68,85,104,0.4)' },
+    K1: { lat: 36.410, lon: 137.306, color: '#ffd166' },
   };
   Object.entries(dets).forEach(([k, d]) => {
     const x = m.left + (d.lon + 180) / 360 * pW;
     const y = m.top + (90 - d.lat) / 180 * pH;
-    cx.beginPath(); cx.arc(x, y, k === 'K1' ? 3 : 4, 0, Math.PI * 2);
+    cx.beginPath(); cx.arc(x, y, 4, 0, Math.PI * 2);
     cx.fillStyle = d.color; cx.fill();
     cx.font = "bold 8px 'Space Mono',monospace";
     cx.fillStyle = d.color;
@@ -1433,7 +1410,7 @@ function renderNetworkMapStatic() {
   cx.font = "7px 'Space Mono',monospace";
   cx.textAlign = 'center';
   [-180, -120, -60, 0, 60, 120, 180].forEach(lon => {
-    cx.fillText(`${lon}Â°`, m.left + (lon + 180) / 360 * pW, H - 3);
+    cx.fillText(`${lon}°`, m.left + (lon + 180) / 360 * pW, H - 3);
   });
 }
 

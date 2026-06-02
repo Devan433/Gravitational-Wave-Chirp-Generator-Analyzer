@@ -58,9 +58,7 @@ from gravitational_wave_analyzer.signal_processing.spectrogram import (
     q_transform,
 )
 
-# ============================================================================
 # Configuration
-# ============================================================================
 
 # GW150914 parameters
 GW150914_GPS = 1126259462.4      # GPS merger time
@@ -124,9 +122,7 @@ def setup_dark_style():
     })
 
 
-# ============================================================================
 # Step 4 — Real Matched Filtering (LIGO Tutorial Convention)
-# ============================================================================
 
 def estimate_psd_welch(strain, sample_rate, nfft=None):
     """Estimate PSD using Welch's method (same as LIGO tutorial).
@@ -241,9 +237,7 @@ def real_matched_filter(strain, psd_freqs, psd_values, template,
     return snr_timeseries, pos_freqs, sigma
 
 
-# ============================================================================
 # Step 6 — Whitening
-# ============================================================================
 
 def whiten_strain(strain, psd_freqs, psd_values, sample_rate):
     """Whiten strain data by dividing by sqrt(PSD) in frequency domain.
@@ -351,9 +345,7 @@ def compute_overlap(h1, h2, psd_freqs, psd_values, sample_rate):
     return min(overlap, 1.0)
 
 
-# ============================================================================
 # Plotting Functions
-# ============================================================================
 
 def plot_psd_comparison(psd_freqs_h1, psd_h1, psd_freqs_l1, psd_l1,
                         output_path):
@@ -535,9 +527,7 @@ def plot_snr_timeseries(times_h1, snr_h1, times_l1, snr_l1,
     print(f"  Saved SNR timeseries: {output_path}")
 
 
-# ============================================================================
 # Main Pipeline
-# ============================================================================
 
 def main():
     """Run the complete real-data validation pipeline."""
@@ -550,9 +540,7 @@ def main():
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # ================================================================
     # Step 1 — Load real data
-    # ================================================================
     print("\n" + "-" * 72)
     print("  STEP 1: Loading Real LIGO Strain Data")
     print("-" * 72)
@@ -578,9 +566,7 @@ def main():
     times_h1 = data_h1["times"]
     times_l1 = data_l1["times"]
 
-    # ================================================================
     # Step 2 — Estimate real PSD (from RAW data, using Welch's method)
-    # ================================================================
     print("\n" + "-" * 72)
     print("  STEP 2: Estimating Real Detector PSD")
     print("-" * 72)
@@ -617,9 +603,7 @@ def main():
         os.path.join(OUTPUT_DIR, "real_psd_comparison.png")
     )
 
-    # ================================================================
     # Step 3 — Generate IMRPhenomD template
-    # ================================================================
     print("\n" + "-" * 72)
     print("  STEP 3: Generating IMRPhenomD Template Waveform")
     print("-" * 72)
@@ -648,9 +632,7 @@ def main():
     print(f"  Peak strain: {template_params['peak_strain']:.2e}")
     print(f"  Merger index: {template_params['merger_index']}")
 
-    # ================================================================
     # Step 4 — Real matched filtering (on RAW data, LIGO convention)
-    # ================================================================
     print("\n" + "-" * 72)
     print("  STEP 4: Running Matched Filter on Real Data")
     print("-" * 72)
@@ -670,9 +652,7 @@ def main():
     )
     print(f"    Template sigma (L1): {sigma_l1:.4e}")
 
-    # ================================================================
     # Step 5 — Find the detection
-    # ================================================================
     print("\n" + "-" * 72)
     print("  STEP 5: Finding the Detection")
     print("-" * 72)
@@ -733,9 +713,7 @@ def main():
         os.path.join(OUTPUT_DIR, "real_snr_timeseries.png")
     )
 
-    # ================================================================
     # Step 6 — Whitened strain plot
-    # ================================================================
     print("\n" + "-" * 72)
     print("  STEP 6: Whitening Strain Data")
     print("-" * 72)
@@ -770,9 +748,7 @@ def main():
         os.path.join(OUTPUT_DIR, "real_whitened_strain.png")
     )
 
-    # ================================================================
     # Step 7 — Real Q-transform
-    # ================================================================
     print("\n" + "-" * 72)
     print("  STEP 7: Computing Q-Transform of Real Data")
     print("-" * 72)
@@ -821,9 +797,7 @@ def main():
         print(f"  WARNING: Q-transform failed: {e}")
         print("  (This is non-critical — matched filter detection is valid)")
 
-    # ================================================================
     # Step 8 — Validation report
-    # ================================================================
     print("\n" + "-" * 72)
     print("  STEP 8: Computing Overlap (Fitting Factor)")
     print("-" * 72)
@@ -840,9 +814,7 @@ def main():
                                psd_freqs_h1, psd_h1, SAMPLE_RATE)
     print(f"  Overlap (fitting factor): {overlap:.3f}  (target: > 0.90)")
 
-    # ================================================================
     # Validation Report
-    # ================================================================
     elapsed = time.time() - t_start
 
     # Determine pass/fail
@@ -915,9 +887,7 @@ def main():
 """
     print(report)
 
-    # ================================================================
     # Step 9 — Save everything
-    # ================================================================
     print("  Saving analysis results...")
 
     save_path = os.path.join(OUTPUT_DIR, "gw150914_real_analysis.npz")

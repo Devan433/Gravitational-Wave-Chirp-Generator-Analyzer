@@ -48,9 +48,7 @@ from gravitational_wave_analyzer.constants import (
 )
 
 
-# ============================================================================
 # Final Black Hole State — Barausse-Rezzolla Formula
-# ============================================================================
 
 def final_spin_barausse_rezzolla(m1, m2, s1z, s2z):
     """Compute the final spin using the Barausse-Rezzolla fitting formula.
@@ -134,15 +132,20 @@ def final_spin_barausse_rezzolla(m1, m2, s1z, s2z):
         )
         return ell
 
-    # Iterative solution: start with a_f = 0 estimate
+    # Iterative solution: start with a non-spinning estimate
+    # For a = 0 (Schwarzschild), ℓ_ISCO = 2√3 ≈ 3.464
+    # So leading order: a_f ≈ ℓ_ISCO * η ≈ 2√3 * η ≈ 0.856
+    # This is just an initial guess.
     a_f = 2.0 * np.sqrt(3.0) * eta  # leading-order estimate (non-spinning)
 
     for _ in range(20):  # Converges in ~5 iterations
         ell = isco_angular_momentum(a_f)
-        a_f_new = (abs(ell * eta)
+        # BR formula Eq. (1): the ℓ̃ * η term already contains the
+        # orbital angular momentum contribution (which equals 2√3 η
+        # at leading order for non-spinning). No separate 2√3 η term.
+        a_f_new = (abs(ell) * eta
                    + s4 * eta * a_tilde**2
                    + (s5 * eta + t0) * a_tilde
-                   + 2.0 * np.sqrt(3.0) * eta
                    + t2 * eta**2
                    + t3 * eta**3)
         if abs(a_f_new - a_f) < 1e-10:
@@ -210,7 +213,12 @@ def final_mass_radiated(m1, m2, s1z, s2z):
     E_rad_frac = np.clip(E_rad_frac, 0.0, 0.15)
 
     final_mass_solar = M * (1.0 - E_rad_frac)
-    final_spin = final_spin_barausse_rezzolla(m1, m2, s1z, s2z)
+
+    # Use the IMRPhenomD final spin formula (Husa et al. 2016) which is
+    # better calibrated to modern NR simulations and consistent with
+    # the waveform model used throughout the project.
+    from gravitational_wave_analyzer.physics.merger import final_spin_imrphenomd
+    final_spin = final_spin_imrphenomd(eta, s1z, s2z, m1, m2)
 
     return {
         'final_mass_solar': final_mass_solar,
@@ -220,9 +228,7 @@ def final_mass_radiated(m1, m2, s1z, s2z):
     }
 
 
-# ============================================================================
 # Quasinormal Mode Frequencies — Berti, Cardoso & Starinets
-# ============================================================================
 
 def qnm_frequency(M_f_solar, a_f, l=2, m=2, n=0):
     """Compute the quasinormal mode frequency and damping time.
@@ -328,9 +334,7 @@ def qnm_frequency(M_f_solar, a_f, l=2, m=2, n=0):
     }
 
 
-# ============================================================================
 # Ringdown Waveform
-# ============================================================================
 
 def generate_ringdown_waveform(M_f_solar, a_f, amplitude_scale=1.0,
                                 sample_rate=4096, duration=0.1,

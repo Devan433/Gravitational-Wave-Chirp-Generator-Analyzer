@@ -97,10 +97,8 @@ def create_dashboard(waveform_result, detection_result=None,
 
     params = waveform_result['params']
 
-    # ===================================================================
-    # Panel 1: Time-domain waveform h(t)
-    # ===================================================================
-    ax1 = fig.add_subplot(gs[0, 0:2])
+        # Panel 1: Time-domain waveform h(t)
+        ax1 = fig.add_subplot(gs[0, 0:2])
     ax1.set_facecolor(colors['panel_bg'])
 
     t = waveform_result['time']
@@ -138,10 +136,8 @@ def create_dashboard(waveform_result, detection_result=None,
     ax1.grid(True, alpha=0.15, color=colors['grid'])
     ax1.ticklabel_format(axis='y', style='scientific', scilimits=(-21, -21))
 
-    # ===================================================================
-    # Panel 2: Frequency-domain ASD
-    # ===================================================================
-    ax2 = fig.add_subplot(gs[0, 2])
+        # Panel 2: Frequency-domain ASD
+        ax2 = fig.add_subplot(gs[0, 2])
     ax2.set_facecolor(colors['panel_bg'])
 
     # LIGO noise curve
@@ -181,10 +177,8 @@ def create_dashboard(waveform_result, detection_result=None,
     ax2.set_ylim(1e-25, 1e-19)
     ax2.grid(True, which='both', alpha=0.1, color=colors['grid'])
 
-    # ===================================================================
-    # Panel 3: Q-transform spectrogram
-    # ===================================================================
-    ax3 = fig.add_subplot(gs[1, 0:2])
+        # Panel 3: Q-transform spectrogram
+        ax3 = fig.add_subplot(gs[1, 0:2])
     ax3.set_facecolor(colors['panel_bg'])
 
     if spectrogram_result is not None:
@@ -236,10 +230,8 @@ def create_dashboard(waveform_result, detection_result=None,
     ax3.set_title('Q-Transform Spectrogram',
                   fontsize=13, color=colors['accent'], fontweight='bold')
 
-    # ===================================================================
-    # Panel 4: SNR time series
-    # ===================================================================
-    ax4 = fig.add_subplot(gs[2, 0:2])
+        # Panel 4: SNR time series
+        ax4 = fig.add_subplot(gs[2, 0:2])
     ax4.set_facecolor(colors['panel_bg'])
 
     if detection_result is not None:
@@ -284,10 +276,8 @@ def create_dashboard(waveform_result, detection_result=None,
                   fontsize=13, color=colors['accent'], fontweight='bold')
     ax4.grid(True, alpha=0.15, color=colors['grid'])
 
-    # ===================================================================
-    # Panel 5: Frequency evolution
-    # ===================================================================
-    ax5 = fig.add_subplot(gs[1, 2])
+        # Panel 5: Frequency evolution
+        ax5 = fig.add_subplot(gs[1, 2])
     ax5.set_facecolor(colors['panel_bg'])
 
     freq = waveform_result['frequency']
@@ -316,10 +306,8 @@ def create_dashboard(waveform_result, detection_result=None,
     ax5.grid(True, alpha=0.15, color=colors['grid'])
     ax5.set_ylim(0, min(500, params.get('f_ring_hz', 300) * 2))
 
-    # ===================================================================
-    # Panel 6: Phase evolution
-    # ===================================================================
-    ax6 = fig.add_subplot(gs[2, 2])
+        # Panel 6: Phase evolution
+        ax6 = fig.add_subplot(gs[2, 2])
     ax6.set_facecolor(colors['panel_bg'])
 
     phase = waveform_result['phase']
@@ -337,10 +325,8 @@ def create_dashboard(waveform_result, detection_result=None,
                   fontsize=13, color=colors['accent'], fontweight='bold')
     ax6.grid(True, alpha=0.15, color=colors['grid'])
 
-    # ===================================================================
-    # Panel 7: Parameter summary
-    # ===================================================================
-    ax7 = fig.add_subplot(gs[3, :])
+        # Panel 7: Parameter summary
+        ax7 = fig.add_subplot(gs[3, :])
     ax7.set_facecolor(colors['panel_bg'])
     ax7.axis('off')
 
@@ -385,10 +371,8 @@ def create_dashboard(waveform_result, detection_result=None,
                   fontsize=13, color=colors['accent'], fontweight='bold',
                   loc='left', pad=10)
 
-    # ===================================================================
-    # Main title
-    # ===================================================================
-    fig.suptitle(
+        # Main title
+        fig.suptitle(
         'Gravitational Wave Chirp Analysis Dashboard',
         fontsize=20, color='white', fontweight='bold', y=0.98
     )
