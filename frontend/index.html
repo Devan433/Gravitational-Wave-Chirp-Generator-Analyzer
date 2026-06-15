@@ -12,6 +12,18 @@
 </head>
 <body>
 
+<!-- Cold-start overlay (Render free tier wakes up in ~30s) -->
+<div id="cold-start-overlay" class="cold-start-overlay">
+  <div class="cold-start-box">
+    <div class="cold-start-spinner"></div>
+    <div class="cold-start-title">Server is waking up</div>
+    <div class="cold-start-msg">Free-tier servers sleep after inactivity. Please wait ~30 seconds...</div>
+  </div>
+</div>
+
+<!-- Toast container for error messages -->
+<div id="toast-container" class="toast-container"></div>
+
 <canvas id="cosmos"></canvas>
 <canvas id="bh-ambient"></canvas>
 
@@ -20,7 +32,7 @@
 <!-- ── HEADER ── -->
 <header>
   <div class="hd-left">
-    <div class="live-dot" id="live-dot"><i id="live-dot-icon"></i><span id="live-text">CHECKING</span></div>
+    <div class="live-dot" id="live-dot"><i id="live-dot-icon"></i><span id="live-text">STANDBY</span></div>
     <div class="det-chips">
       <div class="chip off" id="chip-H1">H1</div>
       <div class="chip off" id="chip-L1">L1</div>
@@ -153,47 +165,47 @@
       </div>
       <div class="pc">
         <div class="pc-lbl">f_Ring</div>
-        <div class="pc-val" id="p-fring">—<span class="pc-unit">Hz</span></div>
+        <div class="pc-val pc-placeholder" id="p-fring">~295<span class="pc-unit">Hz</span></div>
       </div>
       <div class="pc">
         <div class="pc-lbl">f_QNM</div>
-        <div class="pc-val" id="p-fqnm">—<span class="pc-unit">Hz</span></div>
+        <div class="pc-val pc-placeholder" id="p-fqnm">~250<span class="pc-unit">Hz</span></div>
       </div>
       <div class="pc">
         <div class="pc-lbl">Damping τ</div>
-        <div class="pc-val" id="p-tau">—<span class="pc-unit">ms</span></div>
+        <div class="pc-val pc-placeholder" id="p-tau">~4.0<span class="pc-unit">ms</span></div>
       </div>
       <div class="pc mer-hi">
         <div class="pc-lbl">Final Mass</div>
-        <div class="pc-val" id="p-mf">—<span class="pc-unit">M☉</span></div>
+        <div class="pc-val pc-placeholder" id="p-mf">~62<span class="pc-unit">M☉</span></div>
       </div>
       <div class="pc mer-hi">
         <div class="pc-lbl">Final Spin</div>
-        <div class="pc-val" id="p-af">—</div>
+        <div class="pc-val pc-placeholder" id="p-af">~0.67</div>
       </div>
       <div class="pc mer-hi">
         <div class="pc-lbl">E_Radiated</div>
-        <div class="pc-val" id="p-erad" style="font-size:13px;">—<span class="pc-unit">M☉c²</span></div>
+        <div class="pc-val pc-placeholder" id="p-erad" style="font-size:13px;">~3.0<span class="pc-unit">M☉c²</span></div>
       </div>
       <div class="pc">
         <div class="pc-lbl">Q Factor</div>
-        <div class="pc-val" id="p-qf">—</div>
+        <div class="pc-val pc-placeholder" id="p-qf">~2.3</div>
       </div>
       <div class="pc">
         <div class="pc-lbl">Peak Strain</div>
-        <div class="pc-val" id="p-hpeak" style="font-size:12px;">—</div>
+        <div class="pc-val pc-placeholder" id="p-hpeak" style="font-size:12px;">~10⁻²¹</div>
       </div>
       <div class="pc">
         <div class="pc-lbl">Optimal SNR</div>
-        <div class="pc-val" id="p-osnr">—</div>
+        <div class="pc-val pc-placeholder" id="p-osnr">—</div>
       </div>
       <div class="pc">
         <div class="pc-lbl">Peak SNR</div>
-        <div class="pc-val" id="p-psnr">—</div>
+        <div class="pc-val pc-placeholder" id="p-psnr">—</div>
       </div>
       <div class="pc">
         <div class="pc-lbl">Duration</div>
-        <div class="pc-val" id="p-dur">—<span class="pc-unit">s</span></div>
+        <div class="pc-val pc-placeholder" id="p-dur">—<span class="pc-unit">s</span></div>
       </div>
     </div>
   </div>

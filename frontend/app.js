@@ -19,6 +19,33 @@ const GRID   = 'rgba(160,180,220,0.06)';
 const TICK   = 'rgba(160,180,220,0.3)';
 const MONO   = "'Space Mono',monospace";
 
+/* ── Cold Start + Toast Systems ── */
+let coldStartDismissed = false;
+
+function dismissColdStart() {
+  if (coldStartDismissed) return;
+  coldStartDismissed = true;
+  const overlay = document.getElementById('cold-start-overlay');
+  if (overlay) overlay.classList.add('hidden');
+}
+
+function showToast(message, durationMs = 5000) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = '⚠ ' + message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('toast-out');
+    setTimeout(() => toast.remove(), 300);
+  }, durationMs);
+}
+
+function clearPlaceholders() {
+  document.querySelectorAll('.pc-placeholder').forEach(el => el.classList.remove('pc-placeholder'));
+}
+
 const MODEL_COLORS = { imrphenomd: ACC, taylorf2: MER, pn_ringdown: RING };
 const MODEL_LABELS = { imrphenomd: 'IMRPhenomD', taylorf2: 'TaylorF2 (SPA)', pn_ringdown: 'TaylorT4+Ringdown' };
 
@@ -352,6 +379,7 @@ async function runAnalysis() {
     setupAudio(data.audio_base64, data.audio_duration);
 
   } catch (e) {
+    showToast('Analysis failed: ' + e.message);
     showError('analysis-await', 'Connection failed: ' + e.message);
   } finally {
     btn.classList.remove('loading');
@@ -378,6 +406,7 @@ function updateKPIs(p) {
 }
 
 function updateSidebarPhysics(p) {
+  clearPlaceholders();
   setHtmlSafe('p-mtot', p.total_mass.toFixed(1), 'M☉', 'pc-unit');
   setHtmlSafe('p-mc', p.chirp_mass.toFixed(2), 'M☉', 'pc-unit');
   docId('p-eta').textContent = p.eta.toFixed(4);
@@ -572,6 +601,7 @@ async function runCompare() {
     buildCompareTable(ok);
 
   } catch (e) {
+    showToast('Model comparison failed: ' + e.message);
     showError('compare-await', 'Connection failed: ' + e.message);
   } finally {
     btn.classList.remove('loading');
@@ -646,6 +676,7 @@ async function runEstimate() {
     renderPEWaveformOverlay(data);
 
   } catch (e) {
+    showToast('Parameter estimation failed: ' + e.message);
     showError('pe-await', 'Connection failed: ' + e.message);
   } finally {
     btn.classList.remove('loading');
@@ -778,6 +809,7 @@ async function runNetwork() {
     renderTimingChart(data);
 
   } catch (e) {
+    showToast('Network analysis failed: ' + e.message);
     console.error('Network error:', e);
   } finally {
     btn.classList.remove('loading');
@@ -991,6 +1023,7 @@ async function runParamSpace() {
     renderChirpMassContours(data.grid);
 
   } catch (e) {
+    showToast('Parameter space exploration failed: ' + e.message);
     console.error('Param space error:', e);
   } finally {
     btn.classList.remove('loading');
@@ -1317,36 +1350,56 @@ async function fetchDetectorStatus() {
   try {
     const res = await fetch('/detector_status');
     const data = await res.json();
-    ['H1', 'L1', 'V1', 'K1'].forEach(det => {
-      const chip = docId('chip-' + det);
-      if (chip) {
-        chip.className = Object.prototype.hasOwnProperty.call(data, det) && data[det] ? 'chip on' : 'chip off';
-      }
-    });
-    
-    const isOnline = Boolean(data.H1 || data.L1 || data.V1 || data.K1);
-    const dot = docId('live-dot-icon');
-    const txt = docId('live-text');
-    if (dot && txt) {
-      if (isOnline) {
-        txt.textContent = 'ONLINE';
-        dot.style.background = 'var(--live)';
-        dot.style.boxShadow = '0 0 5px var(--live)';
-        dot.style.animation = 'livepulse 2.8s ease-in-out infinite';
-      } else {
-        txt.textContent = 'OFFLINE';
-        dot.style.background = 'var(--alert)';
-        dot.style.boxShadow = '0 0 5px var(--alert)';
-        dot.style.animation = 'none';
-      }
-    }
+    dismissColdStart();
+    updateDetectorChips(data);
   } catch (e) {
     console.error('Failed to fetch detector status:', e);
   }
 }
 
+function updateDetectorChips(data) {
+  ['H1', 'L1', 'V1', 'K1'].forEach(det => {
+    const chip = docId('chip-' + det);
+    if (chip) {
+      chip.className = Object.prototype.hasOwnProperty.call(data, det) && data[det] ? 'chip on' : 'chip off';
+    }
+  });
+  
+  const isOnline = Boolean(data.H1 || data.L1 || data.V1 || data.K1);
+  const dot = docId('live-dot-icon');
+  const txt = docId('live-text');
+  if (dot && txt) {
+    if (isOnline) {
+      txt.textContent = 'ONLINE';
+      dot.style.background = 'var(--live)';
+      dot.style.boxShadow = '0 0 5px var(--live)';
+      dot.style.animation = 'livepulse 2.8s ease-in-out infinite';
+    } else {
+      txt.textContent = 'OFFLINE';
+      dot.style.background = 'var(--alert)';
+      dot.style.boxShadow = '0 0 5px var(--alert)';
+      dot.style.animation = 'none';
+    }
+  }
+}
+
 function init() {
-  fetchDetectorStatus();
+  // Cold-start health check — ping the server, dismiss overlay when it responds
+  fetch('/detector_status')
+    .then(r => { if (r.ok) dismissColdStart(); return r.json(); })
+    .then(data => {
+      updateDetectorChips(data);
+    })
+    .catch(() => {
+      // Server not up yet — retry every 3 seconds
+      const retryInterval = setInterval(() => {
+        fetch('/detector_status')
+          .then(r => { if (r.ok) { dismissColdStart(); clearInterval(retryInterval); } return r.json(); })
+          .then(data => updateDetectorChips(data))
+          .catch(() => {});
+      }, 3000);
+    });
+
   initSliders();
   updateDerivedPhysics();
 
