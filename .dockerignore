@@ -1,0 +1,14 @@
+gw_env/
+venv/
+.git/
+__pycache__/
+*.pyc
+output/
+*.npz
+*.wav
+*.png
+.dockerignore
+Dockerfile
+start.bat
+test_*.py
+validate_real_detection.py
