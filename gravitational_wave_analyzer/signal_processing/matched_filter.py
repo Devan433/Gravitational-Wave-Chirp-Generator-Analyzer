@@ -193,14 +193,26 @@ def matched_filter(data, template, sample_rate, f_lower=20.0,
     snr_complex = z_td / sigma
     snr_abs = np.abs(snr_complex)
 
+    # --- fftshift to move the peak from the array boundary to the center ---
+    # The IFFT produces a circular correlation whose peak sits at index 0;
+    # fftshift rolls it to the middle of the array so it aligns with the
+    # physical merger time.
+    snr_complex = np.fft.fftshift(snr_complex)
+    snr_abs = np.fft.fftshift(snr_abs)
+
+    # --- Centered time axis: runs from -T/2 to +T/2 so merger ≈ t=0 ---
+    T = N * dt
+    snr_time = np.linspace(-T / 2, T / 2, N, endpoint=False)
+
     # --- Find peak ---
     peak_idx = np.argmax(snr_abs)
     peak_snr = float(snr_abs[peak_idx])
-    peak_time = float(peak_idx * dt)
+    peak_time = float(snr_time[peak_idx])
 
     return {
         'snr_timeseries': snr_abs,
         'snr_complex': snr_complex,
+        'snr_time': snr_time,
         'peak_snr': peak_snr,
         'peak_time_index': peak_idx,
         'peak_time': peak_time,
@@ -334,16 +346,19 @@ def run_detection_pipeline(waveform_result, target_snr=25.0,
         injection['signal_scaled'], sample_rate, f_lower
     )
 
-    # --- Time array ---
-    t_noise = noise_result['time']
+    # --- Time array centred at 0 so merger sits at t ≈ 0 ---
+    N_noise = len(noise)
+    T_total = N_noise / sample_rate
+    t_centered = np.linspace(-T_total / 2, T_total / 2, N_noise, endpoint=False)
 
     return {
-        'time': t_noise,
+        'time': t_centered,
         'data': injection['data'],
         'noise': noise,
         'signal_injected': injection['signal_scaled'],
         'snr_timeseries': mf_result['snr_timeseries'],
         'snr_complex': mf_result['snr_complex'],
+        'snr_time': mf_result['snr_time'],
         'peak_snr': mf_result['peak_snr'],
         'peak_time': mf_result['peak_time'],
         'optimal_snr': optimal_snr,
