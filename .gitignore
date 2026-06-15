@@ -1,0 +1,21 @@
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+gw_env/
+venv/
+env/
+.env
+
+# Output Data
+output/
+*.wav
+*.png
+*.npz
+*.hdf5
+
+# OS Files
+.DS_Store
+Thumbs.db
