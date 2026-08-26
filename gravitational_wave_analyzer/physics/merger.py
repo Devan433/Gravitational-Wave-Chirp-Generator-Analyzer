@@ -992,7 +992,7 @@ def generate_imrphenomd_waveform(m1_solar, m2_solar, s1z=0.0, s2z=0.0,
     t_array = t_array - t_array[i_merger]
 
     # --- Detector response ---
-    from gravitational_wave_analyzer.physics.waveform import antenna_pattern
+
     F_plus, F_cross = antenna_pattern(ra, dec, psi)
     h_detector = F_plus * h_plus_td + F_cross * h_cross_td
 
@@ -1119,3 +1119,74 @@ def _apply_planck_taper(h, sample_rate, f_lower, n_cycles=2):
         h_out[i] *= w
 
     return h_out
+
+# Antenna Pattern Functions
+
+def antenna_pattern(ra, dec, psi, detector='H1'):
+    """Compute the antenna response functions F+ and Fx for a GW detector.
+
+    A laser interferometer has a quadrupolar antenna pattern determined
+    by the angle between the GW propagation direction and the detector arms.
+
+    For LIGO Hanford (H1):
+        Latitude:  46.455° N
+        Longitude: 119.408° W
+        Arm orientation: 126° from North (x-arm) and 36° from North (y-arm)
+
+    For LIGO Livingston (L1):
+        Latitude:  30.563° N
+        Longitude: 90.774° W
+        Arm orientation: 108° from North (x-arm) and 18° from North (y-arm)
+
+    The antenna pattern functions are:
+        F+(θ, φ, ψ) = (1/2)(1 + cos²θ) cos(2φ) cos(2ψ) - cosθ sin(2φ) sin(2ψ)
+        Fx(θ, φ, ψ) = (1/2)(1 + cos²θ) cos(2φ) sin(2ψ) + cosθ sin(2φ) cos(2ψ)
+
+    where θ is the polar angle, φ is the azimuthal angle in the detector frame,
+    and ψ is the GW polarization angle.
+
+    Reference: Maggiore, "Gravitational Waves" Vol.1 (2007), Eqs. (7.27)-(7.31)
+               Jaranowski, Królak & Schutz, PRD 58, 063001 (1998)
+
+    Parameters
+    ----------
+    ra : float
+        Right ascension of GW source (radians).
+    dec : float
+        Declination of GW source (radians).
+    psi : float
+        Polarization angle (radians).
+    detector : str
+        Detector identifier: 'H1' (Hanford) or 'L1' (Livingston).
+
+    Returns
+    -------
+    tuple (F_plus, F_cross)
+        Antenna response functions, dimensionless, range [-1, 1].
+    """
+    # For simplicity, we use the "long-wavelength limit" antenna pattern
+    # which is valid when the GW wavelength >> detector arm length (always true
+    # for LIGO's 4km arms and GW frequencies < 10 kHz).
+
+    # Transform (ra, dec) to detector-frame angles (θ, φ).
+    # For a simplified treatment (ignoring Earth rotation and sidereal time),
+    # we use θ = π/2 - dec, φ = ra as an approximation.
+    # A full treatment would include Greenwich Mean Sidereal Time (GMST).
+    theta = PI / 2.0 - dec
+    phi = ra
+
+    cos_theta = np.cos(theta)
+    cos_2phi = np.cos(2.0 * phi)
+    sin_2phi = np.sin(2.0 * phi)
+    cos_2psi = np.cos(2.0 * psi)
+    sin_2psi = np.sin(2.0 * psi)
+
+    # Antenna pattern functions — Maggiore Eq. (7.31)
+    F_plus = (0.5 * (1.0 + cos_theta**2) * cos_2phi * cos_2psi
+              - cos_theta * sin_2phi * sin_2psi)
+
+    F_cross = (0.5 * (1.0 + cos_theta**2) * cos_2phi * sin_2psi
+               + cos_theta * sin_2phi * cos_2psi)
+
+    return F_plus, F_cross
+

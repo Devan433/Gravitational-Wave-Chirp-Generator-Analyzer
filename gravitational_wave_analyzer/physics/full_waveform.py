@@ -91,25 +91,8 @@ def generate_full_waveform(m1_solar, m2_solar, s1z=0.0, s2z=0.0,
             distance_mpc, inclination, f_lower, sample_rate,
             ra, dec, psi
         )
-    elif method == 'pn_ringdown':
-        return _generate_pn_plus_ringdown(
-            m1_solar, m2_solar, s1z, s2z,
-            distance_mpc, inclination, f_lower, sample_rate,
-            ra, dec, psi
-        )
-    elif method == 'taylorf2':
-        from gravitational_wave_analyzer.physics.taylorf2 import (
-            generate_taylorf2_waveform,
-        )
-        return generate_taylorf2_waveform(
-            m1_solar, m2_solar, s1z, s2z,
-            distance_mpc, inclination, f_lower, sample_rate,
-            ra, dec, psi
-        )
     else:
-        raise ValueError(f"Unknown method: {method}. Use 'imrphenomd', 'pn_ringdown', or 'taylorf2'.")
-
-
+        raise ValueError(f'Unknown method: {method}. Use \'imrphenomd\'.')
 def _generate_imrphenomd(m1_solar, m2_solar, s1z, s2z,
                           distance_mpc, inclination, f_lower, sample_rate,
                           ra, dec, psi):
@@ -137,104 +120,6 @@ def _generate_imrphenomd(m1_solar, m2_solar, s1z, s2z,
     result = _trim_waveform(result, pre_merger=2.0, post_merger=0.1)
 
     return result
-
-
-def _generate_pn_plus_ringdown(m1_solar, m2_solar, s1z, s2z,
-                                distance_mpc, inclination, f_lower, sample_rate,
-                                ra, dec, psi):
-    """Generate waveform by stitching TaylorT4 inspiral + QNM ringdown.
-
-    This is the educational/transparent approach where each physics piece
-    is visible. The stitching window ensures smooth continuity.
-    """
-    from gravitational_wave_analyzer.physics.waveform import generate_inspiral_waveform
-    from gravitational_wave_analyzer.physics.ringdown import (
-        generate_ringdown_waveform, compute_ringdown_params,
-    )
-
-    # --- Generate inspiral ---
-    inspiral = generate_inspiral_waveform(
-        m1_solar, m2_solar, s1z, s2z,
-        distance_mpc, inclination, f_lower, sample_rate,
-        ra, dec, psi
-    )
-
-    # --- Compute ringdown parameters ---
-    rd_params = compute_ringdown_params(m1_solar, m2_solar, s1z, s2z)
-
-    # --- Generate ringdown ---
-    # Match amplitude and phase at the junction
-    end_amp = inspiral['amplitude'][-1]
-    end_phase = inspiral['phase'][-1]
-
-    ringdown = generate_ringdown_waveform(
-        M_f_solar=rd_params['final_mass_solar'],
-        a_f=rd_params['final_spin'],
-        amplitude_scale=end_amp,
-        sample_rate=sample_rate,
-        duration=0.15,  # Ringdown dies within ~50ms
-        phi0=end_phase,
-        inclination=inclination,
-    )
-
-    # --- Stitch together ---
-    # Use a cosine blend over ~2ms at the junction
-    blend_samples = int(0.002 * sample_rate)
-    blend_samples = max(blend_samples, 4)
-
-    t_ins = inspiral['time']
-    t_rd = ringdown['time'] + t_ins[-1]  # Shift ringdown to start at inspiral end
-
-    hp_ins = inspiral['h_plus']
-    hc_ins = inspiral['h_cross']
-    hp_rd = ringdown['h_plus']
-    hc_rd = ringdown['h_cross']
-
-    # Blend window: cosine taper
-    blend = np.linspace(0, 1, blend_samples)
-    blend_window = 0.5 * (1 - np.cos(PI * blend))
-
-    # Apply blending at overlap region
-    if len(hp_ins) >= blend_samples and len(hp_rd) >= blend_samples:
-        hp_ins[-blend_samples:] *= (1 - blend_window)
-        hc_ins[-blend_samples:] *= (1 - blend_window)
-        hp_rd[:blend_samples] *= blend_window
-        hc_rd[:blend_samples] *= blend_window
-
-    # Concatenate
-    time = np.concatenate([t_ins, t_rd[1:]])
-    h_plus = np.concatenate([hp_ins, hp_rd[1:]])
-    h_cross = np.concatenate([hc_ins, hc_rd[1:]])
-
-    # Detector response
-    from gravitational_wave_analyzer.physics.waveform import antenna_pattern
-    F_plus, F_cross = antenna_pattern(ra, dec, psi)
-    h_detector = F_plus * h_plus + F_cross * h_cross
-
-    # Frequency from phase
-    analytic = h_plus + 1j * h_cross
-    inst_phase = np.unwrap(np.angle(analytic))
-    inst_freq = np.gradient(inst_phase, 1.0/sample_rate) / TWOPI
-    inst_freq = np.clip(inst_freq, 0, sample_rate/2)
-
-    amplitude = np.sqrt(h_plus**2 + h_cross**2)
-
-    params = {
-        **inspiral['params'],
-        **{f'rd_{k}': v for k, v in rd_params.items()},
-    }
-
-    return {
-        'time': time,
-        'h_plus': h_plus,
-        'h_cross': h_cross,
-        'h_detector': h_detector,
-        'frequency': inst_freq,
-        'phase': inst_phase,
-        'amplitude': amplitude,
-        'params': params,
-    }
-
 
 def _trim_waveform(result, pre_merger=2.0, post_merger=0.1):
     """Trim waveform to keep only the physically interesting region.
