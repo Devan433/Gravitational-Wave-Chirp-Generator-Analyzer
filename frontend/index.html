@@ -22,12 +22,8 @@
   <div class="hd-left"></div>
   <div class="hd-center">
     <div class="hd-title">Gravitational Wave Observatory</div>
-    <div class="hd-sub">Binary Black Hole · IMRPhenomD · Global Network</div>
   </div>
-  <div class="hd-right">
-    <div class="pipe-stat">PIPELINE: <b id="pipe-elapsed">—</b></div>
-    <div id="clock">—</div>
-  </div>
+
 </header>
 
 <div class="body-grid">
@@ -40,18 +36,7 @@
     <div class="sb-sub">Configure the binary source</div>
   </div>
 
-  <div class="orbit-block">
-    <div class="block-label">Orbital Dynamics</div>
-    <canvas id="orbit-canvas" width="240" height="148"></canvas>
-    <div class="ratio-bar-wrap">
-      <div class="ratio-labels">
-        <span id="ratio-m1">M₁ 36 M☉</span>
-        <span id="ratio-eta">η = 0.2471</span>
-        <span id="ratio-m2">M₂ 29 M☉</span>
-      </div>
-      <div class="ratio-track"><div class="ratio-fill" id="ratio-fill" style="width: 55.3%"></div></div>
-    </div>
-  </div>
+
 
   <!-- CONTROLS -->
   <div class="ctrl-block">
@@ -182,13 +167,7 @@
 <!-- ── CONTENT ── -->
 <main class="content">
 
-  <!-- TABS -->
-  <nav class="tabs">
-    <button class="tb on" data-tab="analysis">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/></svg>
-      Analysis
-    </button>
-  </nav>
+
 
   <!-- ── ANALYSIS ── -->
   <div class="tp on" id="tp-analysis">
@@ -256,10 +235,7 @@
         <div class="cb"><canvas id="c-freq" class="gc" height="172"></canvas></div>
       </div>
     </div>
-    <div id="analysis-await" class="await-state">
-      <div class="await-title">Awaiting Signal</div>
-      <div class="await-desc">Configure binary parameters and click <b>Generate Waveform</b> to run the IMRPhenomD analysis pipeline.</div>
-    </div>
+
   </div>
 
 </main>

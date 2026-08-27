@@ -85,13 +85,7 @@ function chartOpts(xlbl, ylbl, extra) {
   return o;
 }
 
-function tick() {
-  const n = new Date(), p = v => String(v).padStart(2, '0');
-  docId('clock').textContent =
-    `${n.getUTCFullYear()}-${p(n.getUTCMonth()+1)}-${p(n.getUTCDate())} ` +
-    `${p(n.getUTCHours())}:${p(n.getUTCMinutes())}:${p(n.getUTCSeconds())} UTC`;
-}
-tick(); setInterval(tick, 1000);
+
 
 function switchTab(id) {
   document.querySelectorAll('.tp').forEach(t => t.classList.remove('on'));
@@ -340,8 +334,6 @@ async function runAnalysis() {
     }
 
     S.result = data;
-    docId('pipe-elapsed').textContent = data.elapsed + 's';
-    docId('analysis-await').style.display = 'none';
 
     updateKPIs(data.physics);
     updateSidebarPhysics(data.physics);
@@ -360,6 +352,11 @@ async function runAnalysis() {
 
 function showError(containerId, msg) {
   const el = docId(containerId);
+  if (!el) {
+    console.error(msg);
+    alert("Error: " + msg);
+    return;
+  }
   el.style.display = 'block';
   el.textContent = "";
   const div = document.createElement("div");
