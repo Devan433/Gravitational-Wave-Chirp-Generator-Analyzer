@@ -100,78 +100,7 @@ document.querySelectorAll('.tb').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
 
-(function() {
-  const cv = docId('cosmos'), cx = cv.getContext('2d');
-  let W, H, stars = [];
-  function resize() {
-    W = cv.width = innerWidth; H = cv.height = innerHeight;
-    stars = [];
-    for (let i = 0; i < 600; i++) {
-      const mw = Math.random() < 0.4;
-      stars.push({
-        x: (mw ? 0.3 + Math.random() * 0.4 : Math.random()) * W,
-        y: (mw ? 0.1 + Math.random() * 0.8 : Math.random()) * H,
-        r: mw ? Math.random() * 0.6 + 0.1 : Math.random() * 0.8 + 0.1,
-        a: Math.random() * 0.7 + 0.15,
-        tw: Math.random() * Math.PI * 2,
-        spd: (Math.random() * 0.4 + 0.1) * (Math.random() < 0.5 ? 1 : -1),
-        hue: Math.random() < 0.08 ? [180, 210, 260, 300][Math.floor(Math.random() * 4)] : null,
-      });
-    }
-  }
-  resize(); window.addEventListener('resize', resize);
-  function draw() {
-    cx.clearRect(0, 0, W, H);
-    const t = Date.now() * 0.001;
-    stars.forEach(s => {
-      const al = s.a * (0.5 + 0.5 * Math.sin(t * s.spd + s.tw));
-      cx.beginPath(); cx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      cx.fillStyle = s.hue !== null
-        ? `hsla(${s.hue},40%,85%,${al * 0.6})`
-        : `rgba(210,220,235,${al})`;
-      cx.fill();
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
 
-(function() {
-  const cv = docId('bh-ambient'), cx = cv.getContext('2d');
-  const W = 520, H = 520; cv.width = W; cv.height = H;
-  let phase = 0;
-  function draw() {
-    cx.clearRect(0, 0, W, H);
-    const CX = W * 0.65, CY = H * 0.35;
-    for (let r = 120; r > 0; r -= 2) {
-      const al = (1 - r / 120) * 0.012;
-      cx.beginPath();
-      cx.ellipse(CX, CY, r * 2.2, r * 0.55, -0.25, 0, Math.PI * 2);
-      const g = cx.createRadialGradient(CX, CY, 0, CX, CY, r * 2.2);
-      g.addColorStop(0, 'rgba(181,98,60,0)');
-      g.addColorStop(0.5, `rgba(181,98,60,${al})`);
-      g.addColorStop(1, 'rgba(100,50,20,0)');
-      cx.fillStyle = g; cx.fill();
-    }
-    for (let i = 0; i < 6; i++) {
-      const r = 55 + i * 55 + ((phase * 80) % 55);
-      const al = Math.max(0, (1 - r / 380) * 0.15);
-      cx.beginPath(); cx.arc(CX, CY, r, 0, Math.PI * 2);
-      cx.strokeStyle = `rgba(123,167,200,${al})`; cx.lineWidth = 0.8; cx.stroke();
-    }
-    cx.beginPath(); cx.arc(CX, CY, 46, 0, Math.PI * 2);
-    cx.strokeStyle = 'rgba(123,167,200,0.08)'; cx.lineWidth = 1; cx.stroke();
-    const r0 = 30;
-    cx.beginPath(); cx.arc(CX, CY, r0, 0, Math.PI * 2);
-    cx.fillStyle = '#000'; cx.fill();
-    cx.beginPath(); cx.arc(CX, CY, r0, 0, Math.PI * 2);
-    cx.strokeStyle = `rgba(181,98,60,${0.3 + 0.1 * Math.sin(phase * 1.5)})`;
-    cx.lineWidth = 1.5; cx.stroke();
-    phase += 0.008;
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
 
 const orbitState = { phi: 0 };
 (function() {
@@ -509,27 +438,13 @@ function renderQTransform(spec, freqTrack) {
   cx.fillText('0', W - 8, H - 3);
 }
 
-function loadPreset() {
-  S.m1 = 36; S.m2 = 29; 
-  S.s1z = 0; S.s2z = 0;
-  S.distance = 410; S.inclination = 0;
-  
-  docId('sl-m1').value = 36; docId('v-m1').textContent = '36.0 M☉';
-  docId('sl-m2').value = 29; docId('v-m2').textContent = '29.0 M☉';
-  docId('sl-s1z').value = 0; docId('v-s1z').textContent = '0.00';
-  docId('sl-s2z').value = 0; docId('v-s2z').textContent = '0.00';
-  docId('sl-dist').value = 410; docId('v-dist').textContent = '410 Mpc';
-  docId('sl-inc').value = 0; docId('v-inc').textContent = '0.00 rad';
-  
-  updateDerivedPhysics();
-}
 
 function init() {
   initSliders();
   updateDerivedPhysics();
 
   docId('btn-generate').addEventListener('click', runAnalysis);
-  docId('btn-preset').addEventListener('click', loadPreset);
+
 }
 
 init();
