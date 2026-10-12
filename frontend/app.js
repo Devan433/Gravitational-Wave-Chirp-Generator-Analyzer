@@ -456,7 +456,7 @@ function renderFreqChart(wf) {
       data: pts, showLine: true, borderColor: LIVE, borderWidth: 1.1, pointRadius: 0,
       fill: { target: 'origin', above: LIVE_F }, tension: 0.3, label: 'f(t)',
     }],
-  }, chartOpts('Time [ms]', 'f [Hz]', { scales: { y: { min: 0, max: 520 } } }));
+  }, chartOpts('Time [ms]', 'Frequency [Hz]', { scales: { y: { min: 0, max: 520 } } }));
 }
 
 function renderQTransform(spec, freqTrack) {
@@ -476,30 +476,40 @@ function renderQTransform(spec, freqTrack) {
   const nFreq = frequencies.length;
   const nTime = times.length;
 
-  // Find max energy for normalization
-  let maxE = 0;
+  // Apply log1p scaling to make the faint energy structure visible.
+  // Raw energy values span many orders of magnitude; without this the
+  // entire heatmap maps to the bottom of the colorscale and appears black.
+  const logEnergy = energy.map(row => row.map(v => Math.log1p(v)));
+
+  // Compute percentile-based color limits for robust contrast
+  const flat = [];
   for (let i = 0; i < nFreq; i++)
     for (let j = 0; j < nTime; j++)
-      if (energy[i][j] > maxE) maxE = energy[i][j];
-  if (maxE === 0) return;
+      if (isFinite(logEnergy[i][j])) flat.push(logEnergy[i][j]);
+  flat.sort((a, b) => a - b);
+  const p05 = flat[Math.floor(flat.length * 0.05)] || 0;
+  const p95 = flat[Math.floor(flat.length * 0.95)] || 1;
+  const zMin = p05;
+  const zMax = p95 > p05 ? p95 : p05 + 1;
 
   const fMin = Math.max(frequencies[0], 1);
   const fMax = frequencies[nFreq - 1];
   const tMin = times[0], tMax = times[nTime - 1];
   const logFMin = Math.log(fMin), logFMax = Math.log(fMax);
 
-  // Draw using rectangles for efficiency
+  // Draw heatmap with log-scaled energy and percentile normalization
   const cellW = Math.max(1, Math.ceil(W / nTime));
   for (let fi = 0; fi < nFreq; fi++) {
     const logF = Math.log(Math.max(frequencies[fi], 1));
     const py = H - ((logF - logFMin) / (logFMax - logFMin)) * H;
     const cellH = Math.max(1, H / nFreq);
     for (let ti = 0; ti < nTime; ti++) {
-      const e = energy[fi][ti] / maxE;
-      if (e < 0.015) continue;
-      const px = ((ti) / nTime) * W;
-      const rgb = ironRgb(Math.min(e, 1));
-      cx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${Math.min(e * 0.95, 0.95)})`;
+      const e = (logEnergy[fi][ti] - zMin) / (zMax - zMin);
+      const eClamp = Math.max(0, Math.min(1, e));
+      if (eClamp < 0.01) continue;
+      const px = (ti / nTime) * W;
+      const rgb = ironRgb(eClamp);
+      cx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${Math.min(0.15 + eClamp * 0.8, 0.95)})`;
       cx.fillRect(px, py - cellH / 2, cellW + 1, cellH + 1);
     }
   }
@@ -524,11 +534,20 @@ function renderQTransform(spec, freqTrack) {
     cx.setLineDash([]);
   }
 
-  // Axis labels
-  cx.fillStyle = 'rgba(160,180,220,0.4)';
-  cx.font = "7px 'Space Mono',monospace";
+  // Axis tick labels (small, same style as other chart ticks)
+  cx.fillStyle = TICK;
+  cx.font = "7px " + MONO;
+  cx.textAlign = 'left';
   cx.fillText(`${Math.round(fMax)} Hz`, 3, 11);
-  cx.fillText(`${Math.round(fMin)}`, 3, H - 5);
+  cx.fillText(`${Math.round(fMin)} Hz`, 3, H - 18);
+
+  // Axis title labels (match chartOpts title style: 8px MONO, TICK color)
+  cx.fillStyle = TICK;
+  cx.font = "8px " + MONO;
+  cx.textAlign = 'center';
+  cx.fillText('Time [ms]', W / 2, H - 2);
+  cx.save(); cx.translate(10, H / 2); cx.rotate(-Math.PI / 2);
+  cx.textAlign = 'center'; cx.fillText('Frequency [Hz]', 0, 0); cx.restore();
 
   // Color bar
   const gb = cx.createLinearGradient(0, 0, 0, H);
@@ -538,6 +557,7 @@ function renderQTransform(spec, freqTrack) {
   cx.fillStyle = gb;
   cx.fillRect(W - 10, 0, 8, H);
   cx.fillStyle = 'rgba(160,180,220,0.4)';
+  cx.textAlign = 'left';
   cx.fillText('1', W - 8, 10);
   cx.fillText('0', W - 8, H - 3);
 }
@@ -584,7 +604,7 @@ async function runCompare() {
       borderWidth: 1.2, pointRadius: 0, tension: 0.1, label: MODEL_LABELS[n] || n,
     }));
     makeChart('c-wf-cmp', 'scatter', { datasets: strainDS },
-      chartOpts('Time [ms]', 'Strain h+'));
+      chartOpts('Time [ms]', 'Strain'));
     renderLegend('cmp-strain-leg', ok.map(([n]) => [MODEL_LABELS[n], MODEL_COLORS[n]]));
 
     // Frequency comparison
@@ -594,7 +614,7 @@ async function runCompare() {
       borderWidth: 1.2, pointRadius: 0, tension: 0.3, label: MODEL_LABELS[n] || n,
     }));
     makeChart('c-fq-cmp', 'scatter', { datasets: freqDS },
-      chartOpts('Time [ms]', 'f [Hz]', { scales: { y: { min: 0, max: 500 } } }));
+      chartOpts('Time [ms]', 'Frequency [Hz]', { scales: { y: { min: 0, max: 500 } } }));
     renderLegend('cmp-freq-leg', ok.map(([n]) => [MODEL_LABELS[n], MODEL_COLORS[n]]));
 
     // Parameter table
@@ -981,7 +1001,8 @@ function renderTimingChart(data) {
            ticks: { color: TICK, font: { family: MONO, size: 7 } },
            title: { display: true, text: 'Arrival Delay [ms]', color: TICK, font: { size: 8, family: MONO } } },
       y: { grid: { display: false }, border: { color: 'rgba(160,180,220,0.07)' },
-           ticks: { color: TICK, font: { family: MONO, size: 9, weight: 'bold' } } },
+           ticks: { color: TICK, font: { family: MONO, size: 9, weight: 'bold' } },
+           title: { display: true, text: 'Detector', color: TICK, font: { size: 8, family: MONO } } },
     },
   });
 }
@@ -1217,7 +1238,7 @@ function renderMassSpinDiagram(m1, m2, s1z, s2z) {
   cx.textAlign = 'center';
   cx.fillText('Total Mass [M☉]', m.left + pW / 2, H - 3);
   cx.save(); cx.translate(8, m.top + pH / 2); cx.rotate(-Math.PI / 2);
-  cx.fillText('χ_eff', 0, 0); cx.restore();
+  cx.fillText('Effective Spin χ_eff', 0, 0); cx.restore();
 
   // Tick values
   [mMin, 50, 100, mMax].forEach(v => {

@@ -157,7 +157,7 @@ def estimate_psd_welch(strain, sample_rate, nfft=None):
 
 
 def real_matched_filter(strain, psd_freqs, psd_values, template,
-                        sample_rate):
+                        sample_rate, merger_index=0):
     """Run matched filtering using verified normalization.
 
     Normalization verified via injection test to correctly recover
@@ -229,6 +229,8 @@ def real_matched_filter(strain, psd_freqs, psd_values, template,
 
     # Normalized SNR
     snr_complex = optimal_time / sigma
+    if merger_index > 0:
+        snr_complex = np.roll(snr_complex, merger_index)
     snr_timeseries = np.abs(snr_complex)
 
     # Positive frequency array for diagnostics
@@ -640,15 +642,19 @@ def main():
     # CRITICAL: Use RAW strain data (not bandpassed). The matched filter's
     # PSD weighting naturally suppresses out-of-band noise optimally.
     # This matches the LIGO tutorial approach.
+    merger_idx = template_params.get("merger_index", 0)
+
     print("\n  Matched filtering H1 (raw data, LIGO convention)...")
     snr_h1, mf_freqs_h1, sigma_h1 = real_matched_filter(
-        strain_h1, psd_freqs_h1, psd_h1, template, SAMPLE_RATE
+        strain_h1, psd_freqs_h1, psd_h1, template, SAMPLE_RATE,
+        merger_index=merger_idx,
     )
     print(f"    Template sigma (H1): {sigma_h1:.4e}")
 
     print("  Matched filtering L1 (raw data, LIGO convention)...")
     snr_l1, mf_freqs_l1, sigma_l1 = real_matched_filter(
-        strain_l1, psd_freqs_l1, psd_l1, template, SAMPLE_RATE
+        strain_l1, psd_freqs_l1, psd_l1, template, SAMPLE_RATE,
+        merger_index=merger_idx,
     )
     print(f"    Template sigma (L1): {sigma_l1:.4e}")
 

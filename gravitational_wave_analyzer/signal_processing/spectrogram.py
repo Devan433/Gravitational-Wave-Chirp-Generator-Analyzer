@@ -157,13 +157,18 @@ def q_transform(time_series, sample_rate, q_range=(4, 64),
         windowed = data_slice * window
 
         # --- Time-domain signal for this tile ---
-        # Pad windowed data into a full-length array and IFFT
-        tile_fft = np.zeros(N, dtype=complex)
+        # Zero-pad to 2×N before IFFT to prevent circular wrap-around.
+        # Without padding, the IFFT is circular: energy from the merger
+        # at the end of the signal wraps to the start, creating a bright
+        # artifact on the left edge of the spectrogram.
+        # Padding to 2×N converts circular → linear convolution.
+        N_pad = 2 * N
+        tile_fft = np.zeros(N_pad, dtype=complex)
         tile_fft[idx_low:idx_high] = windowed
-        tile_td = ifft(tile_fft) * N  # Scale to preserve amplitude
+        tile_td = ifft(tile_fft) * N_pad  # Scale to preserve amplitude
 
-        # --- Energy: |z(t)|² ---
-        tile_energy = np.abs(tile_td)**2
+        # --- Energy: |z(t)|² — keep only the first N samples (physical portion) ---
+        tile_energy = np.abs(tile_td[:N])**2
 
         # --- Downsample to output time resolution ---
         # Interpolate tile_energy onto the output time grid
